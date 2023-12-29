@@ -52,9 +52,9 @@ npm run json-server
 
 本章专注于 React, 首先我们会使用 React 的基础知识：组件、JSX、 列表渲染实现，让大家可以回顾 React 基础知识的使用。然后学习用状态提升共享组件状态。 最后学习用自定义 Hook 抽象代码，并实现第一个自定义 Hook-useDebounce。
 
-#### 1. 非空检查
+### 1. 非空检查
 
-```typescript
+```js
 // eslint-disable-next-line no-undef
 export const isFalsy = (*value*: unknown) => (value === 0 ? false : !value);
 // unknown 类似any， 但是比any更严格
@@ -73,15 +73,15 @@ export const cleanObject = (*object*: any) => {
 };
 ```
 
-#### 2. process.env环境变量的使用
+### 2. process.env环境变量的使用
 
-#### 3. qs 库的使用
+### 3. qs 库的使用
 
-#### 4. 用Custom Hook提取并复用组件代码
+### 4. 用Custom Hook提取并复用组件代码
 
 useMount
 
-```typescript
+```js
  // 在组件挂载后（插入 DOM 树中）立即调用 类似 componentDidMount()
  useEffect(() => {
   fetch(`${apiUrl}/users`).then(async (*response*) => {
@@ -92,7 +92,7 @@ useMount
  }, []);
 ```
 
-```typescript
+```js
 export const useMount = (callback) => {
   useEffect(() => {
     callback();
@@ -112,7 +112,7 @@ useDebounce
 
 [说说你对闭包的理解，以及闭包使用场景- 题目详情 - 前端面试题宝典 (ecool.fun)](https://fe.ecool.fun/topic/e9bcc1f4-1b0a-4213-9d3a-8e64c97c7848?orderBy=updateTime&order=desc&titleKey=闭包)
 
-```javascript
+```js
 const debounce = (func, delay) => {
   let timeout;
   return () => {
@@ -133,3 +133,34 @@ log();
 ```
 
 ![image-20231229145334431](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20231229145334431.png)
+
+```js
+export const useDebounce = (value, delay) => {
+  const [debounceValue, setDebounceValue] = useState(value);
+
+  useEffect(() => {
+    // 每次在delay变化以后，设置一个定时器
+    const timeout = setTimeout(() => setDebounceValue(value), delay);
+    return () => clearTimeout(timeout);
+  }, [value, delay]);
+
+  // 清理上一次的useEffect
+  return debounceValue;
+};
+
+const debouncedParam = useDebounce(param, 2000);
+
+useEffect(() => {
+  fetch(`${apiUrl}/projects?${qs.stringify(cleanObject(debouncedParam))}`).then(
+    async (response) => {
+      if (response.ok) {
+        setList(await response.json());
+      }
+    },
+  );
+}, [debouncedParam]);
+```
+
+## 4 TS应用： JS神助攻-强类型
+
+本章专注于TS,首先我们会回顾第三章中的 JSX 代码，发现由于 JS 天然弱类型带来的脆弱性。然后用 TSX 改造第三章的 JSX 代码，**增强类型约束**，在真实场景中体会 TS 的优越性。然后实践 TS 的进阶知识泛型，最后通过一个作业练习加强大家对 Hook、TS 和泛型的理解。
