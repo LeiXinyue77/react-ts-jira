@@ -1,7 +1,8 @@
 import { AnySrvRecord } from "dns";
 import { useEffect, useState } from "react";
 
-export const isFalsy = (value: any) => (value === 0 ? false : !value);
+// eslint-disable-next-line no-undef
+export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
 
 // 在一个函数里改变，改变传入的对象本身是不好的
 export const cleanObject = (object: object) => {
@@ -23,15 +24,17 @@ export const useMount = (callback: () => void) => {
   }, []);
 };
 
-export const useDebounce = (value: any, delay?: number) => {
+// 后面用泛型规范类型
+// eslint-disable-next-line no-undef
+export const useDebounce = (value: unknown, delay?: number): any => {
   const [debounceValue, setDebounceValue] = useState(value);
 
   useEffect(() => {
-    // 每次在delay变化以后，设置一个定时器
+    // 每次在value, delay变化以后，设置一个定时器
     const timeout = setTimeout(() => setDebounceValue(value), delay);
+    // 清理上一次的useEffect
     return () => clearTimeout(timeout);
   }, [value, delay]);
 
-  // 清理上一次的useEffect
   return debounceValue;
 };

@@ -1,6 +1,3 @@
-import React from "react";
-import { useState } from "react";
-
 export interface User {
   id: string;
   name: "string";
