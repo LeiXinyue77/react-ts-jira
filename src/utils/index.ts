@@ -1,4 +1,3 @@
-import { AnySrvRecord } from "dns";
 import { useEffect, useState } from "react";
 
 // eslint-disable-next-line no-undef
@@ -18,6 +17,7 @@ export const cleanObject = (object: object) => {
   return result;
 };
 
+//首次挂载时实现的副作用
 export const useMount = (callback: () => void) => {
   useEffect(() => {
     callback();
@@ -37,4 +37,19 @@ export const useDebounce = <V>(value: V, delay?: number) => {
   }, [value, delay]);
 
   return debounceValue;
+};
+
+export const useArray = <T>(initialArray: T[]) => {
+  const [value, setValue] = useState(initialArray);
+  return {
+    value,
+    setValue,
+    add: (item: T) => setValue([...value, item]),
+    clear: () => setValue([]),
+    removeIndex: (index: number) => {
+      const copy = [...value];
+      copy.splice(index, 1);
+      setValue(copy);
+    },
+  };
 };

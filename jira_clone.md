@@ -56,7 +56,7 @@ npm run json-server
 
 本章专注于 React, 首先我们会使用 React 的基础知识：组件、JSX、 列表渲染实现，让大家可以回顾 React 基础知识的使用。然后学习用状态提升共享组件状态。 最后学习用自定义 Hook 抽象代码，并实现第一个自定义 Hook-useDebounce。
 
-#### 3-1 React列表为什么要加key
+### 3-1 React列表为什么要加key
 
 [为什么React列表要加key - 掘金 (juejin.cn)](https://juejin.cn/post/7021156864742129672)
 
@@ -440,3 +440,117 @@ JS 文件 + .d.ts 文件 === ts 文件
 ### 4.4 泛型
 
 #### 用泛型增强useDebounce灵活性
+
+```typescript
+const [param, setParam] = useState({
+  name: "",
+  personId: "",
+});
+const debouncedParam = useDebounce(param, 200);
+
+export const useDebounce = <V>(value: V, delay?: number) => {
+  const [debounceValue, setDebounceValue] = useState(value);
+
+  useEffect(() => {
+    // 每次在value/delay变化以后，设置一个定时器
+    const timeout = setTimeout(() => setDebounceValue(value), delay);
+    // 清理上一次的useEffect
+    return () => clearTimeout(timeout);
+  }, [value, delay]);
+
+  return debounceValue;
+};
+```
+
+### 4.5 TS泛型实现useArray
+
+```typescript
+import { useArray } from "utils";
+
+export const TsReactTest = () => {
+  const persons: { name: string; age: number }[] = [
+    { name: "jack", age: 25 },
+    { name: "rose", age: 22 },
+  ];
+  const { value, clear, removeIndex, add } = useArray(persons);
+
+  //   useMount(() => {});
+  return (
+    <div>
+      <button onClick={() => add({ name: "john", age: 22 })}>add john</button>
+      <button onClick={() => removeIndex(0)}>move 0</button>
+      <button style={{ marginBottom: "50px" }} onClick={() => clear()}>
+        clear
+      </button>
+      {value.map((person: { age: number; name: string }, index: number) => (
+        <div style={{ marginBottom: "30px" }}>
+          <span style={{ color: "red" }}>{index}</span>
+          <span>{person.name}</span>
+          <span>{person.age}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
+export const useArray = <T>(initialArray: T[]) => {
+  const [value, setValue] = useState(initialArray);
+  return {
+    value,
+    setValue,
+    add: (item: T) => setValue([...value, item]),
+    clear: () => setValue([]),
+    removeIndex: (index: number) => {
+      const copy = [...value];
+      copy.splice(index, 1);
+      setValue(copy);
+    },
+  };
+};
+```
+
+#### 浅拷贝的五种实现方式
+
+[浅拷贝的五种实现方式 - 掘金 (juejin.cn)](https://juejin.cn/post/7014702118716080158)
+
+自己创建一个新的对象，来接受你要重新复制或引用的对象值。如果对象属性是基本的数据类型，复制的就是基本类型的值给新对象；但如果属性是引用数据类型，复制的就是内存中的地址，如果其中一个对象改变了这个内存中的地址，肯定会影响到另一个对象
+
+1. Object.assign
+
+2. 扩展运算符
+
+3. Array.prototype.concat
+
+4. Array.prototype.slice
+
+5. 使用第三方库&手动实现
+
+   **浅拷贝核心点在于：**
+
+   - 对于基础数据类型数据直接拷贝
+
+   - 对于引用类型数据仅拷贝第一层对象的属性，重新开辟一个地址将其存储（深拷贝和浅拷贝的重要差异）
+
+     ```javascript
+     const clone = (target) => {
+       // 如果是引用类型
+       if (typeof target === "object" && target !== null) {
+         // 判断是数据还是对象，为其初始化一个数据
+         const cloneTarget = Array.isArray(target) ? [] : {};
+
+         // for in 可以遍历数组/对象
+         for (let prop in target) {
+           //浅拷贝不会拷贝对象的 继承属性
+           if (target.hasOwnProperty(prop)) {
+             cloneTarget[prop] = target[prop];
+           }
+         }
+
+         return cloneTarget;
+       } else {
+         // 基础类型 直接返回
+         return target;
+       }
+     };
+     ```
