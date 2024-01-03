@@ -18,6 +18,8 @@
 
 ### 2-2 配置eslint prettier和commitlint规范工程
 
+[一步到位配置eslint+prettier+husky+commitlint - 掘金 (juejin.cn)](https://juejin.cn/post/7109337539697180703)
+
 #### Q1: eslint配置
 
 #### Q2: Typescript项目中import图片时报错
@@ -434,3 +436,7 @@ JS 文件 + .d.ts 文件 === ts 文件
 .d.ts 文件可以让 JS 文件继续维持自己JS文件的身份，而拥有TS的类型保护
 
 一般我们写业务代码不会用到，但是点击类型跳转一般会跳转到 .d.ts文件
+
+### 4.4 泛型
+
+#### 用泛型增强useDebounce灵活性

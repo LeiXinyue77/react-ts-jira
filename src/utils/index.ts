@@ -26,11 +26,11 @@ export const useMount = (callback: () => void) => {
 
 // 后面用泛型规范类型
 // eslint-disable-next-line no-undef
-export const useDebounce = (value: unknown, delay?: number): any => {
+export const useDebounce = <V>(value: V, delay?: number) => {
   const [debounceValue, setDebounceValue] = useState(value);
 
   useEffect(() => {
-    // 每次在value, delay变化以后，设置一个定时器
+    // 每次在value/delay变化以后，设置一个定时器
     const timeout = setTimeout(() => setDebounceValue(value), delay);
     // 清理上一次的useEffect
     return () => clearTimeout(timeout);
