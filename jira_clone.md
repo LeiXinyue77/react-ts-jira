@@ -2,7 +2,7 @@
 
 本章我们将会用Create-React-App初始化项目。并配置 eslint 检验代码质量，prettier 检验代码格式，commitlint 检验提交信息，使得工程规范化。最后会配置一个优秀的后端 Mock 方案，JSON SERVER 第三、四章使用 Mock，从第五章开始连接真实服务器。
 
-### 2-1 create-react-app初始化项目
+### 2.1 create-react-app初始化项目
 
 #### Q1:安装node.js
 
@@ -16,7 +16,7 @@
 
 [如何处理 Node 报错 Error: error:0308010c:digital envelope routines::unsupported (freecodecamp.org)](https://www.freecodecamp.org/chinese/news/error-error-0308010c-digital-envelope-routines-unsupported-node-error-solved/#:~:text=什么原因导致 “0308010c%3Adigital envelope routines%3A%3Aunsupported” 的错误？ 你遇到这个错误的可能原因主要有两个： 你没有使用 Node,LTS 版本。 你使用的 react-script 的版本小于 5。 这个错误也可能发生，因为你使用的是Node 17。)
 
-### 2-2 配置eslint prettier和commitlint规范工程
+### 2.2 配置eslint prettier和commitlint规范工程
 
 [一步到位配置eslint+prettier+husky+commitlint - 掘金 (juejin.cn)](https://juejin.cn/post/7109337539697180703)
 
@@ -30,7 +30,7 @@
 
 配置commitlint时自动生成的commitlint.config.js是utf-16le编码，导致commit提交失败，需要转化为utf-8
 
-### 2-3 对比常见Mock方案
+### 2.3 对比常见Mock方案
 
 #### 1. 代码入侵
 
@@ -56,11 +56,11 @@ npm run json-server
 
 本章专注于 React, 首先我们会使用 React 的基础知识：组件、JSX、 列表渲染实现，让大家可以回顾 React 基础知识的使用。然后学习用状态提升共享组件状态。 最后学习用自定义 Hook 抽象代码，并实现第一个自定义 Hook-useDebounce。
 
-### 3-1 React列表为什么要加key
+### 3.1 React列表为什么要加key
 
 [为什么React列表要加key - 掘金 (juejin.cn)](https://juejin.cn/post/7021156864742129672)
 
-### 3-2. 非空检查
+### 3.2. 非空检查
 
 ```js
 // eslint-disable-next-line no-undef
@@ -81,11 +81,11 @@ export const cleanObject = (*object*: any) => {
 };
 ```
 
-### 3-3. process.env环境变量的使用
+### 3.3. process.env环境变量的使用
 
-### 3-4. qs 库的使用
+### 3.4. qs 库的使用
 
-### 3-5. 用Custom Hook提取并复用组件代码
+### 3.5. 用Custom Hook提取并复用组件代码
 
 useMount
 
@@ -173,7 +173,7 @@ useEffect(() => {
 
 本章专注于TS,首先我们会回顾第三章中的 JSX 代码，发现由于 JS 天然弱类型带来的脆弱性。然后用 TSX 改造第三章的 JSX 代码，**增强类型约束**，在真实场景中体会 TS 的优越性。然后实践 TS 的进阶知识泛型，最后通过一个作业练习加强大家对 Hook、TS 和泛型的理解。
 
-### 4-3 TypeScript vs JavaScript
+### 4.3 TypeScript vs JavaScript
 
 TypeScript 是 "强类型" 版的 JavaScript，当我们在代码中定义变量(包括普通变量、函数、组件、hook等)的时候，TypeScript 允许我们在定义的同时指定其类型，这样使用者在使用不当的时候就会被及时报错提醒
 
@@ -192,7 +192,7 @@ export const SearchPanel = ({users, param, setParam}: SearchPanelProps) => {}
 
 经常用 TypeScript 的感受：比起原来的 JavaScript，TypeScript 带来了完全不一样的开发体验，bug 大大减少了，编辑器提示快了，代码更易读了， 开发速度快了(看似多写代码，其实由于前面几点节省了大量开发时间)，上手了就回不去了
 
-#### TypeScript 的类型
+#### 4.4 TypeScript 的类型
 
 在本节中我们使用到了8种类型： number, string, boolean, 函数, array, any, void, object
 
@@ -437,7 +437,7 @@ JS 文件 + .d.ts 文件 === ts 文件
 
 一般我们写业务代码不会用到，但是点击类型跳转一般会跳转到 .d.ts文件
 
-### 4.4 泛型
+### 4.5 泛型
 
 #### 用泛型增强useDebounce灵活性
 
@@ -462,7 +462,7 @@ export const useDebounce = <V>(value: V, delay?: number) => {
 };
 ```
 
-### 4.5 TS泛型实现useArray
+### 4.6 TS泛型实现useArray
 
 ```typescript
 import { useArray } from "utils";
@@ -554,3 +554,203 @@ export const useArray = <T>(initialArray: T[]) => {
        }
      };
      ```
+
+## 5 JWT、用户认证与异步请求
+
+### 5.1 React表单、TS的类型继承和鸭子类型实现登录表单
+
+#### 1. Eslint踩坑记录
+
+![image-20240103210620871](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240103210620871.png)
+
+##### ESLint Parsing error: Unexpected token
+
+解决方案
+
+**添加`'parser': '@typescript-eslint/parser'`，记得需要安装依赖`npm install @typescript-eslint/parser --save-dev`**
+
+```javascript
+// .eslintrc.js文件
+  parser: "babel-eslint",
+  parserOptions: {
+    ecmaVersion: 2018,
+    ecmaFeatures: {
+      jsx: true,
+    },
+    sourceType: "module",
+  },
+```
+
+修改后的.eslintrc.js
+
+```javascript
+// .eslintrc.js文件
+parser: "@typescript-eslint/parser",
+  parserOptions: {
+    parser: "babel-eslint",
+    ecmaVersion: 2018,
+    ecmaFeatures: {
+      jsx: true,
+    },
+    sourceType: "module",
+  },
+```
+
+参考[ESLint问题及解决方案： Parsing error: Unexpected token - 掘金 (juejin.cn)](https://juejin.cn/post/7010688306383945742)
+
+#### 2. ducking type
+
+```typescript
+interface Base {
+  id: number;
+}
+interface Advance extends Base {
+  name: string;
+}
+const test = (p: Base) => {};
+
+// const a: Advance = { id: 1, name: "Lucky" };
+const a = { id: 1, name: "Lucky" }; //// 鸭子（duck typing）类型：面向接口编程，而不是面向对象编程
+test(a); //符合接口即可
+```
+
+#### 3. `event.currentTarget` 和 `event.target`
+
+`event.currentTarget` 和 `event.target` 是 JavaScript 事件处理中的两个重要属性，它们表示事件发生时涉及的不同元素。
+
+1. `event.target`：
+
+   - `event.target` 表示触发了事件的实际目标元素。
+   - 对于触发事件的元素而言，它代表了事件最初发生的那个元素。例如，如果用户点击了按钮，`event.target` 将是这个按钮元素。
+   - 在事件传播（event propagation）过程中，`event.target` 可能会变化，特别是如果事件通过冒泡（bubbling）或捕获（capturing）阶段传播到其他祖先或后代元素时。
+
+2. `event.currentTarget`：
+   - `event.currentTarget` 表示当前绑定了事件处理程序的元素。
+   - 无论事件是如何传播的，它始终指向绑定了事件处理函数的那个元素。
+   - 在事件的捕获和冒泡阶段中，`event.currentTarget` 保持不变，始终指向绑定事件处理程序的那个元素。
+
+示例：
+假设有以下 HTML 结构：
+
+```html
+<div id="outer">
+  <div id="inner">
+    <button>Click me</button>
+  </div>
+</div>
+```
+
+```javascript
+const outer = document.getElementById("outer");
+const inner = document.getElementById("inner");
+const button = document.querySelector("button");
+
+function handleClick(event) {
+  console.log("event.target:", event.target); // 点击按钮时，event.target 是按钮元素
+  console.log("event.currentTarget:", event.currentTarget); // 永远是绑定事件处理程序的元素
+}
+
+outer.addEventListener("click", handleClick);
+inner.addEventListener("click", handleClick);
+button.addEventListener("click", handleClick);
+```
+
+- 当点击按钮时，`event.target` 是 `<button>` 元素，而 `event.currentTarget` 依赖于点击的是哪个元素绑定了事件处理程序。
+
+了解和区分这两个属性对于事件处理非常重要，特别是在处理事件委托（event delegation）或在复杂的嵌套结构中编写代码时。
+
+#### 4. 给json-server添加中间件自定义API
+
+增加middleware.js文件
+
+```javascript
+module.exports = (req, res, next) => {
+  if (req.method === "POST" && req.path === "/login") {
+    if (req.body.username === "Lucky" && req.body.password === "123456") {
+      return res.status(200).json({
+        user: {
+          token: "123",
+        },
+      });
+    } else {
+      return res.status(400).json({
+        message: "用户名或密码错误",
+      });
+    }
+  }
+  next;
+};
+```
+
+package.json文件配置
+
+```javascript
+   "json-server": "json-server __json_server_mock__/db.json --watch --port 3001 --middlewares ./__json_server_mock__/middleware.js "
+```
+
+登录实现
+
+```typescript
+import qs from "qs";
+import { FormEvent } from "react";
+
+// interface Base {
+//   id: number;
+// }
+// interface Advance extends Base {
+//   name: string;
+// }
+// const test = (p: Base) => {};
+
+// // const a: Advance = { id: 1, name: "Lucky" };
+// const a = { id: 1, name: "Lucky" }; //// 鸭子（duck typing）类型：面向接口编程，而不是面向对象编程
+// test(a); //符合接口即可
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+export const LoginScreen = () => {
+  const login = (param: { username: string; password: string }) => {
+    fetch(`${apiUrl}/login`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify(param),
+    }).then(async (response) => {
+      if (response.ok) {
+      }
+    });
+  };
+  // - `FormEvent` 是事件类型，表示一个表单相关的事件
+  // - `<HTMLFormElement>` 是指定事件目标的类型
+  // 指明了事件所属的 HTML 元素类型是 `<form>` 元素
+  // `FormEvent<HTMLFormElement>` 表示一个针对 `<form>` 元素的事件类型
+  // 提供了有关表单事件的信息，例如提交表单时的动作、阻止默认行为、获取表单中的数据等
+  //  HTMLFormElement extends HTMLElement
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const username = (event.currentTarget.elements[0] as HTMLInputElement)
+      .value;
+    const password = (event.currentTarget.elements[1] as HTMLInputElement)
+      .value;
+    login({ username, password });
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        {/* htmlFor 用户点击标签文本时，将焦点或操作转移到与该标签相关联的表单控件 */}
+        <label htmlFor="username">用户名</label>
+        <input type="text" id="username" />
+      </div>
+      <div>
+        <label htmlFor="password">密码</label>
+        <input type="password" id="password" />
+      </div>
+      <button type="submit">登录</button>
+    </form>
+  );
+};
+
+```
+
+### 5-2 连接真实后端服务器-开发者工具
+
+[sindu12jun/jira-dev-tool (github.com)](https://github.com/sindu12jun/jira-dev-tool)
