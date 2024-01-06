@@ -678,7 +678,7 @@ module.exports = (req, res, next) => {
       });
     }
   }
-  next;
+  next();
 };
 ```
 
@@ -749,6 +749,18 @@ export const LoginScreen = () => {
   );
 };
 
+```
+
+启动json-server
+
+```javascript
+npm run json-server
+```
+
+启动项目
+
+```javascript
+npm start
 ```
 
 ### 5-2 连接真实后端服务器-开发者工具

@@ -6,15 +6,17 @@ module.exports = {
     node: true,
     es6: true,
   },
+
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    parser: "babel-eslint",
+    parser: "babel-eslint ",
     ecmaVersion: 2018,
     ecmaFeatures: {
       jsx: true,
     },
     sourceType: "module",
   },
+
   settings: {
     react: {
       pragma: "React",
@@ -25,7 +27,7 @@ module.exports = {
   rules: {
     // 'no-undef': 0,
     "react-hooks/rules-of-hooks": "off",
-    "react-hooks/exhaustive-deps": "off",
+    // "react-hooks/exhaustive-deps": "off",
     // 'react-hooks/exhaustive-deps': ['warn', {
     //   'additionalHooks': '(useMyCustomHook|useMyOtherCustomHook)'
     // }],

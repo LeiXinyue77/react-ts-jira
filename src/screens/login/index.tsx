@@ -1,4 +1,3 @@
-import qs from "qs";
 import { FormEvent } from "react";
 
 // interface Base {
@@ -19,10 +18,10 @@ export const LoginScreen = () => {
   const login = (param: { username: string; password: string }) => {
     fetch(`${apiUrl}/login`, {
       method: "POST",
-      headers: { "Content-type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(param),
-    }).then(async (response) => {
-      if (response.ok) {
+    }).then(async (res) => {
+      if (res.ok) {
       }
     });
   };
@@ -40,6 +39,7 @@ export const LoginScreen = () => {
       .value;
     login({ username, password });
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
