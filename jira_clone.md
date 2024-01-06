@@ -192,13 +192,13 @@ export const SearchPanel = ({users, param, setParam}: SearchPanelProps) => {}
 
 经常用 TypeScript 的感受：比起原来的 JavaScript，TypeScript 带来了完全不一样的开发体验，bug 大大减少了，编辑器提示快了，代码更易读了， 开发速度快了(看似多写代码，其实由于前面几点节省了大量开发时间)，上手了就回不去了
 
-#### 4.4 TypeScript 的类型
+### 4.4 TypeScript 的类型
 
 在本节中我们使用到了8种类型： number, string, boolean, 函数, array, any, void, object
 
 这一节我们接触到了平常使用中会接触到的大部分的类型，下面我们挨个梳理一遍：
 
-##### 1. number
+1. **number**
 
 数字类型，包含小数、其他进制的数字：
 
@@ -210,7 +210,7 @@ let octal: number = 0o744;
 let big: bigint = 100n;
 ```
 
-##### 2. string
+2. **string**
 
 字符串
 
@@ -218,7 +218,7 @@ let big: bigint = 100n;
 let color: string = "blue";
 ```
 
-##### 3. array
+3. **array**
 
 在 TS 中，array 一般指**所有元素类型相同**的值的集合，比如：
 
@@ -243,7 +243,7 @@ let l = ["jack", 10];
 
 在 TS 中不是 数组/array，它们叫作 tuple，下面会提到
 
-##### 4. boolean
+4. **boolean**
 
 布尔值
 
@@ -251,7 +251,7 @@ let l = ["jack", 10];
 let isDone: boolean = false;
 ```
 
-##### 5. 函数
+5. **函数**
 
 两种方法
 
@@ -287,7 +287,7 @@ const isFalsy: (value: any) => boolean = (value) => {
 };
 ```
 
-##### 6. any
+6. **any**
 
 any 表示这个值可以是任何值，被定义为 any 就意味着不做任何类型检查
 
@@ -300,7 +300,7 @@ looselyTyped.ifItExists();
 
 初学 TS 的同学经常会为了让TS不再报错就用了很多any，这样做会失去TS的保护。同学们应该尽量避免使用any
 
-##### 7. void
+7. **void**
 
 绝大部分情况下，只会用在这一个地方：表示函数不返回任何值或者返回undefined (因为函数不返回任何值的时候 === 返回 undefined)
 
@@ -315,13 +315,13 @@ export const useMount = (fn: () => void) => {
 };
 ```
 
-##### 8. object
+8. **object**
 
 除了 number, string, boolean, bigint, symbol, null, or undefined，其他都是 object
 
 下面是我们还没有接触到的 TS 类型
 
-##### 9. tuple
+9. **tuple**
 
 其实这个大家已经见过了，这是没有给大家指出来
 
@@ -347,7 +347,7 @@ const SomeComponent = () => {
 };
 ```
 
-##### 10. enum
+10. **enum**
 
 ```jsx
 enum Color {
@@ -358,7 +358,7 @@ enum Color {
 let c: Color = Color.Green;
 ```
 
-##### 11. null 和 undefined
+11. **null 和 undefined**
 
 null 和 undefined 在 TypeScript 中既是一个值，也是一个类型：
 
@@ -367,7 +367,7 @@ let u: undefined = undefined;
 let n: null = null;
 ```
 
-##### 12. unknown
+12. **unknown**
 
 unknown 表示这个值可以是任何值
 
@@ -388,7 +388,7 @@ const isFalsy = (value: unknown) => {
 };
 ```
 
-##### 13. never
+13. **never**
 
 ```jsx
 // 这个 func返回的就是never类型，用到比较少，在类型操作等场景会用到
@@ -397,7 +397,7 @@ const func = () => {
 };
 ```
 
-##### interface
+14.**interface**
 
 interface 不是一种类型，应该被翻译成 接口，或者说使用上面介绍的类型，创建一个我们自己的类型
 
@@ -408,7 +408,7 @@ interface User {
 const u: User = {id: 1}
 ```
 
-##### 啥时候需要声明类型
+**啥时候需要声明类型**
 
 理论上来说在我们声明任何变量的时候都需要声明类型(包括普通变量、函数、组件、hook等等)，**声明 函数、组件、hook 等需要声明参数 和 返回值的类型。**
 
@@ -429,7 +429,7 @@ const isFalsy = (value: unknown) => {
 };
 ```
 
-##### .d.ts
+**.d.ts**
 
 JS 文件 + .d.ts 文件 === ts 文件
 
@@ -766,3 +766,42 @@ npm start
 ### 5-2 连接真实后端服务器-开发者工具
 
 [sindu12jun/jira-dev-tool (github.com)](https://github.com/sindu12jun/jira-dev-tool)
+
+确认git工作区没有尚未提交的文件
+
+安装jira-dev-tool
+
+```javascript
+npx imooc-jira-tool
+```
+
+index.tsx 引入jira-dev-tool
+
+```typescript
+import { loadDevTools } from "jira-dev-tool";
+
+loadDevTools(() => {
+  ReactDOM.render(
+    <React.StrictMode>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+});
+```
+
+Line 0: Parsing error: DeprecationError: 'originalKeywordKind' has been deprecated since v5.0.0 and can no longer be used. Use 'identifierToKeywordKind(identifier)' instead
+
+```javascript
+yarn add typescript@latest @typescript-eslint/parser@latest
+```
+
+删除json-server相关内容
+
+文件夹： **json_server_mock **
+
+package.json
+
+![1704551721924](C:\Users\Xinyue Lei\Documents\WeChat Files\wxid_rppok8t3ynud22\FileStorage\Temp\1704551721924.png)
