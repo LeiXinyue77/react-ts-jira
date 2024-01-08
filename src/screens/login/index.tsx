@@ -1,3 +1,4 @@
+import { useAuth } from "context/auth-context";
 import { FormEvent } from "react";
 
 // interface Base {
@@ -15,16 +16,20 @@ import { FormEvent } from "react";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 export const LoginScreen = () => {
-  const login = (param: { username: string; password: string }) => {
-    fetch(`${apiUrl}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(param),
-    }).then(async (res) => {
-      if (res.ok) {
-      }
-    });
-  };
+  // const login = (param: { username: string; password: string }) => {
+  //   fetch(`${apiUrl}/login`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(param),
+  //   }).then(async (res) => {
+  //     if (res.ok) {
+  //     }
+  //   });
+  // };
+
+  // 在子组件中使用数据
+  const { login, user } = useAuth();
+
   // - `FormEvent` 是事件类型，表示一个表单相关的事件
   // - `<HTMLFormElement>` 是指定事件目标的类型
   // 指明了事件所属的 HTML 元素类型是 `<form>` 元素
@@ -42,6 +47,11 @@ export const LoginScreen = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      {user ? (
+        <div>
+          登录成功，用户名：{user.name} token:{user.token}
+        </div>
+      ) : null}
       <div>
         {/* htmlFor 用户点击标签文本时，将焦点或操作转移到与该标签相关联的表单控件 */}
         <label htmlFor="username">用户名</label>
