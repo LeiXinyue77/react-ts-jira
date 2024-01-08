@@ -538,7 +538,7 @@ export const useArray = <T>(initialArray: T[]) => {
        if (typeof target === "object" && target !== null) {
          // 判断是数据还是对象，为其初始化一个数据
          const cloneTarget = Array.isArray(target) ? [] : {};
-
+     
          // for in 可以遍历数组/对象
          for (let prop in target) {
            //浅拷贝不会拷贝对象的 继承属性
@@ -546,7 +546,7 @@ export const useArray = <T>(initialArray: T[]) => {
              cloneTarget[prop] = target[prop];
            }
          }
-
+     
          return cloneTarget;
        } else {
          // 基础类型 直接返回
@@ -1039,3 +1039,11 @@ export const LoginScreen = () => {
 };
 
 ```
+
+### 5-6 useAuth切换登录与非登录状态
+
+新建 src/unauthenticated-app/index.tsx
+
+新建 src/unauthenticated-app/login.tsx,
+
+新建 src/unauthenticated-app/register.tsx
