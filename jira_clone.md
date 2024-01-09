@@ -538,7 +538,7 @@ export const useArray = <T>(initialArray: T[]) => {
        if (typeof target === "object" && target !== null) {
          // 判断是数据还是对象，为其初始化一个数据
          const cloneTarget = Array.isArray(target) ? [] : {};
-     
+
          // for in 可以遍历数组/对象
          for (let prop in target) {
            //浅拷贝不会拷贝对象的 继承属性
@@ -546,7 +546,7 @@ export const useArray = <T>(initialArray: T[]) => {
              cloneTarget[prop] = target[prop];
            }
          }
-     
+
          return cloneTarget;
        } else {
          // 基础类型 直接返回
@@ -811,6 +811,12 @@ package.json
 
 **JSON Web Token** 跨域认证解决方案
 
+[React 登录获取token并存储及解析token_react登录没有token怎么处理-CSDN博客](https://blog.csdn.net/qq_40190624/article/details/88826455)
+
+[React + Express 实现自动登录 - 掘金 (juejin.cn)](https://juejin.cn/post/7195592508495413305)
+
+[JWT详细教程与使用_jwt教程-CSDN博客](https://blog.csdn.net/Top_L398/article/details/109361680#:~:text=2.1.认证流程 1 前端通过Web表单将自己的用户名和密码发送到后端的接口。 该过程一般是HTTP的POST请求。 ... 2 后端核对用户名和密码成功后，将用户的id等其他信息作为JWT Payload,4 前端在每次请求时将JWT放入HTTP的Header中的Authorization位。 ... 5 后端检查是否存在，如存在验证JWT的有效性。 ... 6 ·验证通过后后端使用JWT中包含的用户信息进行其他逻辑操作，返回相应结果。)
+
 ##### 注册一个新用户
 
 - 修改：
@@ -1044,6 +1050,266 @@ export const LoginScreen = () => {
 
 新建 src/unauthenticated-app/index.tsx
 
-新建 src/unauthenticated-app/login.tsx,
+```typescript
+import { useState } from "react";
+import { RegisterScreen } from "./register";
+import { LoginScreen } from "./login";
+
+export const UnauthenticatedApp = () => {
+  const [isRegister, setIsRegister] = useState(false);
+  return (
+    <div>
+      {isRegister ? <RegisterScreen /> : <LoginScreen />}
+      <button onClick={() => setIsRegister(!isRegister)}>
+        切换到{isRegister ? "登录" : "注册"}
+      </button>
+    </div>
+  );
+};
+
+```
+
+新建 src/unauthenticated-app/login.tsx
+
+```typescript
+import { useAuth } from "context/auth-context";
+import { FormEvent } from "react";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+export const LoginScreen = () => {
+  // 在子组件中使用数据
+  const { login, user } = useAuth();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const username = (event.currentTarget.elements[0] as HTMLInputElement)
+      .value;
+    const password = (event.currentTarget.elements[1] as HTMLInputElement)
+      .value;
+    login({ username, password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        {/* htmlFor 用户点击标签文本时，将焦点或操作转移到与该标签相关联的表单控件 */}
+        <label htmlFor="username">用户名</label>
+        <input type="text" id="username" />
+      </div>
+      <div>
+        <label htmlFor="password">密码</label>
+        <input type="password" id="password" />
+      </div>
+      <button type="submit">登录</button>
+    </form>
+  );
+};
+
+```
 
 新建 src/unauthenticated-app/register.tsx
+
+```typescript
+import { useAuth } from "context/auth-context";
+import { FormEvent } from "react";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+export const RegisterScreen = () => {
+  // 在子组件中使用数据
+  const { register, user } = useAuth();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const username = (event.currentTarget.elements[0] as HTMLInputElement)
+      .value;
+    const password = (event.currentTarget.elements[1] as HTMLInputElement)
+      .value;
+    register({ username, password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        {/* htmlFor 用户点击标签文本时，将焦点或操作转移到与该标签相关联的表单控件 */}
+        <label htmlFor="username">用户名</label>
+        <input type="text" id="username" />
+      </div>
+      <div>
+        <label htmlFor="password">密码</label>
+        <input type="password" id="password" />
+      </div>
+      <button type="submit">注册</button>
+    </form>
+  );
+};
+
+```
+
+新建src/authenticated-app.tsx
+
+```typescript
+import { useAuth } from "context/auth-context";
+import { ProjectListScreen } from "screens/project-list";
+import { logout } from "auth-provider";
+
+export const AuthenticatedApp = () => {
+  const { logout } = useAuth();
+
+  return (
+    <div>
+      <button onClick={logout}>登出</button>
+      <ProjectListScreen />
+    </div>
+  );
+};
+
+```
+
+修改App.tsx
+
+```typescript
+import { AuthenticatedApp } from "authenticated-app";
+import "./App.css";
+import { useAuth } from "context/auth-context";
+import { UnauthenticatedApp } from "unauthenticated-app";
+
+function App() {
+  const { user } = useAuth();
+  return (
+    <div className="App">
+      {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+### 5-7 用fetch抽象通用HTTP请求方法
+
+**请求头加入token,解决返回401的问题，无法获取projects和users列表**
+
+新建src/utils/http.ts
+
+报错： requestinit is not defined typescript
+
+```typescript
+import RequestInit from "node-fetch";
+```
+
+报错: Could not find a declaration file for module 'node-fetch'. 'e:/Study/front-end/04-React/jira-clone/node_modules/node-fetch/lib/index.js' implicitly has an 'any' type. Try `npm i --save-dev @types/node-fetch` if it exists or add a new declaration (.d.ts) file containing `declare module 'node-fetch';`ts(7016) 代码 import RequestInit from "node-fetch";
+
+```typescript
+yarn add --dev @types/node-fetch
+```
+
+```typescript
+import RequestInit from "node-fetch";
+import qs from "qs";
+import * as auth from "auth-provider";
+import { useAuth } from "context/auth-context";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+interface Config extends RequestInit {
+  token?: string;
+  data?: object;
+}
+
+//请求头加入token,解决返回401的问题，无法获取projects和users列表
+export const http = async (
+  endpoint: string,
+  { data, token, headers, ...customConfig }: Config,
+): Promise<any> => {
+  const config = {
+    method: "GET",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": data ? "application/json" : "",
+    },
+    ...customConfig,
+  };
+
+  if (config.method.toUpperCase() === "GET") {
+    endpoint += `?${qs.stringify(data)}`;
+  } else {
+    config.body = JSON.stringify(data || {});
+  }
+
+  //axios 和 fetch 的表现不一样，axios可以直接在返回状态不为2xx的时候抛出异常
+  return window
+    .fetch(`${apiUrl}/${endpoint}`, config)
+    .then(async (response) => {
+      if (response.status === 401) {
+        //未登录或登录失效
+        await auth.logout();
+        window.location.reload(); //刷新页面
+        return Promise.reject({ message: "请重新登录" });
+      }
+      const data = await response.json();
+      if (response.ok) {
+        return data;
+      } else {
+        return Promise.reject(data); //401fetch API 不会自动抛出异常 需要手动抛出
+      }
+    });
+};
+```
+
+### 5-8 useHtt管理JWT和登录状态，保证登录状态
+
+src/utils/http.ts
+
+```typescript
+export const useHttp = () => {
+  const { user } = useAuth();
+  //TODO 讲解TS操作符
+  return (...[endpoint, config]: Parameters<typeof http>) =>
+    http(endpoint, { ...config, token: user?.token });
+};
+```
+
+修改scr/screens/project-list/index.tsx
+
+```typescript
+import { SearchPanel } from "./search-panel";
+import { List } from "./list";
+import { useEffect, useState } from "react";
+import { cleanObject, useMount, useDebounce } from "utils";
+import qs from "qs";
+import { useHttp } from "utils/http";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+export const ProjectListScreen = () => {
+  const [users, setUsers] = useState([]);
+  const [param, setParam] = useState({
+    name: "",
+    personId: "",
+  });
+  const debouncedParam = useDebounce(param, 200);
+  const [list, setList] = useState([]);
+
+  //修改
+  const client = useHttp();
+
+  useEffect(() => {
+    client("projects", { data: cleanObject(debouncedParam) }).then(setList);
+  }, [client, debouncedParam]);
+
+  useMount(() => {
+    client("users").then(setUsers);
+  });
+
+  return (
+    <div>
+      <SearchPanel param={param} setParam={setParam} users={users} />
+      <List users={users} list={list} />
+    </div>
+  );
+};
+
+```
