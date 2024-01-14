@@ -1259,7 +1259,7 @@ export const http = async (
 };
 ```
 
-### 5-8 useHtt管理JWT和登录状态，保证登录状态
+### 5-8 useHttp管理JWT和登录状态，保证登录状态
 
 src/utils/http.ts
 
@@ -1313,3 +1313,178 @@ export const ProjectListScreen = () => {
 };
 
 ```
+
+**添加登录状态维持**
+
+src/context/auth-context.tsx
+
+```typescript
+...
+const bootstrapUser = async () => {
+  let user = null;
+  const token = auth.getToken();
+  if (token) {
+    const data = await http("me", { token });
+    user = data.user;
+  }
+  return user;
+};
+...
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+ ...
+
+  useMount(() => {
+    bootstrapUser().then(setUser);
+  });
+
+ ...
+};
+```
+
+### 5-9 TS联合类型，Partial和Omit
+
+```typescript
+//联合类型
+let myFavoriteNumber: string | number;
+myFavoriteNumber = "seven";
+myFavoriteNumber = 7;
+
+//类型别名
+type FavoriteNumber = string | number;
+let LuckyFavoriteNumber: FavoriteNumber = "11";
+//在很多情况下可以和interface互换
+//区别：联合类型/交叉类型和utility type(eg.Partial,Omit)只能用type实现，interface无法替代
+
+//JS中的typeof 是在runtime时运行的
+// return typeof 1 === "number"
+//TS中的typeof 是在静态环境中运行的
+//return (...[endpoint, config]: Parameters<typeof http>) =>
+
+type Person = {
+  name: string;
+  age: number;
+};
+const xiaoming: Partial<Person> = { name: "xiaoming" };
+const shenmiren1: Omit<Person, "name"> = { age: 18 };
+const shenmiren2: Omit<Person, "name" | "age"> = { age: 18 };
+```
+
+### 5-10 Utility Type的实现
+
+```typescript
+type Person = {
+  name: string;
+  age: number;
+};
+type Personkeys = keyof Person;
+
+//Partial的实现
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+
+type PersonOnlyName = Pick<Person, "name">;
+type Pick<T, k extends keyof T> = {
+  [P in k]: T[P];
+};
+
+//Exclude 操作联合类型
+type Age = Exclude<Personkeys, "name">;
+```
+
+## 6 CSS 其实很简单 - 用 CSS-in-JS 添加样式
+
+### 6-1 安装与使用antd组件库
+
+**1. 安装与使用 antd 组件库**
+
+**安装antd组件库**
+
+```js
+yarn add antd
+```
+
+**引入antd组件库 src/index.tsx**
+
+在 `src\index.tsx` 中引入 `antd.less`（一定要在 `jira-dev-tool` 之后引入，以便后续修改主题样式能够覆盖到 `jira-dev-tool`）
+
+```typescript
+import "antd/dist/antd.less";
+```
+
+**覆盖create-react-app的一些默认配置**
+
+```js
+yarn add @craco/craco
+yarn add craco-less
+```
+
+**修改package.json**
+
+**修改前**
+
+```json
+//...
+"scripts": {
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+  //...
+  },
+//...
+```
+
+**修改后**
+
+```json
+//...
+"scripts": {
+    "start": "craco start --openssl-legacy-provider start",
+    "build": "craco build",
+    "test": "craco test",
+	//...
+  },
+//...
+```
+
+**配置craco.config.js文件**
+
+```typescript
+const CracoLessPlugin = require("craco-less");
+
+module.exports = {
+  plugins: [
+    {
+      plugin: CracoLessPlugin,
+      options: {
+        lessLoaderOptions: {
+          lessOptions: {
+            modifyVars: {
+              "@primary-color": "rgb(0, 82, 204)", //修改主题颜色
+              "@font-size-base": "16px", //修改基本字体大小
+            },
+            javascriptEnabled: true,
+          },
+        },
+      },
+    },
+  ],
+};
+```
+
+**重新启动项目**
+
+重启项目时报错Error: Can‘t resolve ‘antd/dist/antd.less‘
+
+解决方案：由于版本升级问题，5.13.0的antd组件库路径已经改变，如下：
+
+![image-20240114141806444](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240114141806444.png)
+
+重新安装指定版本的antd和craco及其依赖
+
+```typescript
+yarn add @craco/craco@7 craco-less@2.0.0 antd@4.24.8
+```
+
+![image-20240114143914625](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240114143914625.png)

@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = (form: AuthForm) => auth.register(form).then(setUser);
   const logout = () => auth.logout().then(() => setUser(null));
 
+  //用户登录状态下，刷新时，登录状态的维持
   useMount(() => {
     bootstrapUser().then(setUser);
   });

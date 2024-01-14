@@ -3,26 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@craco/craco": "7",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react-dom": "^16.9.8",
+    "antd": "4.24.8",
+    "craco-less": "2.0.0",
     "jira-dev-tool": "^1.7.61",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.1",
     "typescript": "^5.3.3",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "prepare": "husky install",
-    "json-server": "json-server __json_server_mock__/db.json -w -p 3001 --middlewares ./__json_server_mock__/middleware.js"
+    "start": "craco start --openssl-legacy-provider start",
+    "build": "craco build",
+    "test": "craco test",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -47,8 +48,9 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
+    "@types/babel__traverse": "^7.20.5",
     "@types/node-fetch": "^2.6.10",
-    "@types/qs": "^6.9.5",
+    "@types/qs": "^6.9.11",
     "@types/react": "^18.2.47",
     "@typescript-eslint/parser": "^6.18.0",
     "eslint": "^7.32.0",

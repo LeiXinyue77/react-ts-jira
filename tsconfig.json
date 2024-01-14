@@ -15,7 +15,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["qs","@types/babel__traverse", /* 其他类型声明 */]
   },
   "include": ["src"]
 }
