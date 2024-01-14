@@ -22,6 +22,7 @@ export const List = ({ users, list }: ListProps) => {
         {
           title: "名称",
           dataIndex: "name",
+          //localeCompare 可排序中文字符
           sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {

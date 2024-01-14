@@ -1488,3 +1488,204 @@ yarn add @craco/craco@7 craco-less@2.0.0 antd@4.24.8
 ```
 
 ![image-20240114143914625](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240114143914625.png)
+
+**antd组件库替换原生组件**
+
+- 先修改登录页面 `src\unauthenticated-app\login.tsx`:
+
+  ```typescript
+  import { useAuth } from "context/auth-context";
+  import { FormEvent } from "react";
+  import { Button, Form, Input } from "antd";
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  export const LoginScreen = () => {
+    // 在子组件中使用数据
+    const { login, user } = useAuth();
+
+    const handleSubmit = (values: { username: string; password: string }) => {
+      login(values);
+    };
+
+    return (
+      <Form onFinish={handleSubmit}>
+        <Form.Item
+          name={"username"}
+          rules={[{ required: true, message: "请输入用户名" }]}
+        >
+          <Input placeholder={"用户名"} type="text" id="username" />
+        </Form.Item>
+        <Form.Item
+          name={"password"}
+          rules={[{ required: true, message: "请输入密码" }]}
+        >
+          <Input placeholder={"密码"} type="password" id="password" />
+        </Form.Item>
+        <Form.Item>
+          <Button htmlType="submit" type="primary">
+            登录
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  };
+
+  ```
+
+- 查看页面效果，并尝试 **登录** 功能
+
+- 修改注册页面 `src\unauthenticated-app\register.tsx`:
+
+  ```typescript
+  import { Button, Form, Input } from "antd";
+  import { useAuth } from "context/auth-context";
+  import { FormEvent } from "react";
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  export const RegisterScreen = () => {
+    // 在子组件中使用数据
+    const { register, user } = useAuth();
+
+    const handleSubmit = (values: { username: string; password: string }) => {
+      register(values);
+    };
+
+    return (
+      <Form onFinish={handleSubmit}>
+        <Form.Item
+          name={"username"}
+          rules={[{ required: true, message: "请输入用户名" }]}
+        >
+          <Input placeholder={"用户名"} type="text" id="username" />
+        </Form.Item>
+        <Form.Item
+          name={"password"}
+          rules={[{ required: true, message: "请输入密码" }]}
+        >
+          <Input placeholder={"密码"} type="password" id="password" />
+        </Form.Item>
+        <Form.Item>
+          <Button htmlType="submit" type="primary">
+            注册
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  };
+
+  ```
+
+- 从登录页切换到注册页，查看页面效果，并尝试 **注册** 功能
+
+- 接下来修改 `src\unauthenticated-app\index.tsx`：
+
+  ```typescript
+  import { useState } from "react";
+  import { RegisterScreen } from "./register";
+  import { LoginScreen } from "./login";
+  import { Card } from "antd";
+
+  export const UnauthenticatedApp = () => {
+    const [isRegister, setIsRegister] = useState(false);
+    return (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <Card>
+          {isRegister ? <RegisterScreen /> : <LoginScreen />}
+          <button onClick={() => setIsRegister(!isRegister)}>
+            切换到{isRegister ? "登录" : "注册"}
+          </button>
+        </Card>
+      </div>
+    );
+  };
+
+  ```
+
+- 修改 `src\screens\project-list\list.tsx`(部分未改动省略)
+
+  ```typescript
+  import { Table } from "antd";
+  import { User } from "./search-panel";
+
+  ...
+
+  export const List = ({ users, list }: ListProps) => {
+    return (
+      <Table
+        pagination={false}
+        columns={[
+          {
+            title: "名称",
+            dataIndex: "name",
+            //localeCompare 可排序中文字符
+            sorter: (a, b) => a.name.localeCompare(b.name),
+          },
+          {
+            title: "负责人",
+            render(value, project) {
+              return (
+                <span>
+                  {users.find((user) => user.id === project.personId)?.name ||
+                    "未知"}
+                </span>
+              );
+            },
+          },
+        ]}
+        dataSource={list}
+      />
+    );
+  };
+
+  ```
+
+- 修改 ``src\screens\project-list\search-panel.tsx`
+
+```typescript
+import { Input, Select } from "antd";
+
+...
+
+export const SearchPanel = ({ param, setParam, users }: SearchPanelProps) => {
+  return (
+    <form>
+      <div>
+        {/* setParam(Object.assign({},param,{name:e.target.value}) */}
+        <Input
+          type="text"
+          value={param.name}
+          onChange={(e) =>
+            setParam({
+              ...param,
+              name: e.target.value,
+            })
+          }
+        />
+        <Select
+          value={param.personId}
+          onChange={(value) =>
+            setParam({
+              ...param,
+              personId: value,
+            })
+          }
+        >
+          <Select.Option value={""}>负责人</Select.Option>
+          {users.map((user) => (
+            <Select.Option value={user.id} key={user.id}>
+              {user.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+    </form>
+  );
+};
+```
+
+### 6-4 Emotion的安装与使用
+
+- **安装emotion库**
+- **安装插件vscode-styled-components**
