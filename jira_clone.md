@@ -2073,7 +2073,7 @@ const Main = styled.main`
 
 ```
 
-### 6-7
+### 6-7 完善项目列表样式
 
 - **修改src/screens/projects-list/index.tsx**
 
@@ -2254,3 +2254,102 @@ const Header = styled(Row)`
   z-index: 1;
 `;
 ```
+
+### 6-8 清除前面课程留下的警告信息
+
+- 为什么之前ts推断result为{}
+
+![image-20240115210936508](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115210936508.png)
+
+```typescript
+//为什么之前ts推断result为{}
+// let a: object;
+// a = { name: "jack" };
+// a = () => {};
+// a = new RegExp("");
+
+// let b: { [key: string]: unknown };
+// b = { name: "jack" };
+// b = () => {};
+// b = new RegExp("");
+
+// 在一个函数里改变，改变传入的对象本身是不好的
+export const cleanObject = (object: { [key: string]: unknown }) => {
+  const result = { ...object };
+  Object.keys(result).forEach((key) => {
+    const value = result[key];
+    if (isVoid(value)) {
+      delete result[key];
+    }
+  });
+  return result;
+};
+```
+
+- 使用<a><a/>时必须给出href属性，否则不合法
+
+src/authenticated-app.tsx src/unauthenticated-app/index.tsx
+
+用antd组件<Button type="link"><Button>替换
+
+#### TODO
+
+src/utils/index.ts
+
+```typescript
+//首次挂载时实现的副作用
+export const useMount = (callback: () => void) => {
+  useEffect(() => {
+    callback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //TO DO 依赖项里加上callback会造成无限循环
+    // 这个和useCallback和useMemo有关系
+  }, []);
+};
+```
+
+src/screens/project-list/index.tsx
+
+```typescript
+useEffect(() => {
+  client("projects", { data: cleanObject(debouncedParam) }).then(setList);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [debouncedParam]);
+```
+
+- jira-dev-tool和项目冲突导致warning
+
+![image-20240115214921112](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115214921112.png)
+
+```js
+yarn add jira-dev-tool@next
+```
+
+src/index.tsx
+
+```typescript
+...
+import { loadServer, DevTools } from "jira-dev-tool";
+...
+
+loadServer(() =>
+  ReactDOM.render(
+    <React.StrictMode>
+      <AppProviders>
+        <DevTools />
+        <App />
+      </AppProviders>
+    </React.StrictMode>,
+    document.getElementById("root"),
+  ),
+);
+...
+```
+
+设置React Query 为后续课程作准备
+
+![image-20240115221349399](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115221349399.png)
+
+![image-20240115221404999](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115221404999.png)
+
+**开发者控制台点击闪烁**
