@@ -1688,4 +1688,569 @@ export const SearchPanel = ({ param, setParam, users }: SearchPanelProps) => {
 ### 6-4 Emotion的安装与使用
 
 - **安装emotion库**
-- **安装插件vscode-styled-components**
+
+  ```javascript
+  yarn add add @emotion/react @emotion/style
+  ```
+
+- **安装插件vscode-styled-components** (tips：在 emotion 编写css， 若是发现代码没有高亮，则需要安装 vscode/webstrom 插件:)
+
+- **删除src/index.css**
+
+- **修改index.tsx，删除**
+
+  ```typescript
+  import "./index.css";
+  ```
+
+  全局控制样式都写在**src/App.css**里面，删除原有样式，编辑如下
+
+  ```css
+  html {
+    /* rem em */
+    /* em 相对于父元素的 font-size */
+    /* rem 相对于根元素html的 font-size，r就是root的意思 */
+    /* 浏览器默认 font-size 16px */
+    /* 16px * 62.5% = 10px */
+    /* 1rem === 10px */
+    font-size: 62.5%;
+  }
+
+  /* viewport height === vh */
+  html body #root .App {
+  ```
+
+- **原生标签使用motion**
+
+```typescript
+...
+import { Card, Button } from "antd";
+import styled from "@emotion/styled";
+
+export const UnauthenticatedApp = () => {
+  ...
+  return (
+    <Container>
+      <Card>
+        ...
+      </Card>
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  justify-content: center;
+`
+
+```
+
+相当于将 div 添加以 css-[hashcode] 命名的 class 并自定义样式后 封装为 StyledComponent 类型的 自定义组件 Container （仅添加样式）
+
+```typescript
+const Container: StyledComponent<
+  {
+    theme?: Theme | undefined;
+    as?: React.ElementType<any> | undefined;
+  },
+  React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+  {}
+>;
+```
+
+- **antd 标签使用 emotion**
+
+```typescript
+...
+import { Card, Button } from "antd";
+import styled from "@emotion/styled";
+
+export const UnauthenticatedApp = () => {
+  ...
+  return (
+    <Container>
+      <ShadowCard>
+        ...
+      </ShadowCard>
+    </Container>
+  );
+};
+
+const ShadowCard = styled(Card)`
+  width: 40rem;
+  min-height: 56rem;
+  padding: 3.2rem 4rem;
+  border-radius: 0.3rem;
+  box-sizing: border-box;
+  box-shadow: rgba(0,0,0,0.1) 0 0 10px;
+  text-align: center;
+`
+...
+```
+
+- **进一步美化，设置登录界面背景**
+
+添加src/assets文件夹
+
+![image-20240115103143298](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115103143298.png)
+
+继续编辑 `src\unauthenticated-app\index.tsx`(部分原有内容省略)：切换文案修改并使用 `link` 类型 `button`；添加 logo、标题和背景图
+
+```typescript
+...
+import { Card, Button, Divider } from "antd";
+import styled from "@emotion/styled";
+import left from 'assets/left.svg'
+import logo from 'assets/logo.svg'
+import right from 'assets/right.svg'
+
+export const UnauthenticatedApp = () => {
+  ...
+  return (
+    <Container>
+      <Header/>
+      <Background/>
+      <ShadowCard>
+        <Title>
+          {isRegister ? '请注册' : '请登录'}
+        </Title>
+        {isRegister ? <Register /> : <Login />}
+        <Divider/>
+        <Button type="link" onClick={() => setIsRegister(!isRegister)}>
+          {isRegister ? "已经有账号了？直接登录" : "没有账号？注册新账号"}
+        </Button>
+      </ShadowCard>
+    </Container>
+  );
+};
+
+const Title = styled.h2`
+  margin-bottom: 2.4rem;
+  color: rgb(94, 108, 132);
+`
+
+const Background = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed; // 背景图片是否会随着页面滑动
+  background-position: left bottom, right bottom;
+  background-size: calc(((100vw - 40rem) / 2) - 3.2rem), calc(((100vw - 40rem) / 2) - 3.2rem), cover;
+  background-image: url(${left}), url(${right});
+`
+
+const Header = styled.header`
+  background: url(${logo}) no-repeat center;
+  padding: 5rem 0;
+  background-size: 8rem;
+  width: 100%;
+`
+...
+
+```
+
+background-image 使用多个图时，默认会有一个重叠关系（后来者居下），可以通过 巧妙的 size 计算和 position 使其达到想要的效果
+
+美化登录页 src\unauthenticated-app\login.tsx`(部分原有内容省略)：按钮宽度撑开，并导出供注册页使用
+
+```typescript
+...
+import { Form, Button, Input } from "antd";
+import styled from "@emotion/styled";
+
+export const Login = () => {
+  ...
+  return (
+    <Form onFinish={handleSubmit}>
+      ...
+      <Form.Item>
+        <LongButton htmlType="submit" type="primary">
+          登录
+        </LongButton>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export const LongButton = styled(Button)`
+  width: 100%
+`
+```
+
+美化注册页 `src\unauthenticated-app\register.tsx`(部分原有内容省略)：引入登录页导出的“长按钮”
+
+```typescript
+...
+import { Form, Input } from "antd";
+import { LongButton } from "./login";
+
+export const Register = () => {
+  ...
+  return (
+    <Form onFinish={handleSubmit}>
+      ...
+      <Form.Item>
+        <LongButton htmlType="submit" type="primary">
+          注册
+        </LongButton>
+      </Form.Item>
+    </Form>
+  );
+};
+
+```
+
+![image-20240115104128156](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115104128156.png)
+
+### 6-5 用flex和gird布局优化项目列表
+
+```typescript
+import { useAuth } from "context/auth-context";
+import { ProjectListScreen } from "screens/project-list";
+import styled from "@emotion/styled";
+
+/**
+ * gri 和 flex各自的应用场景
+ * 1. 考虑是一维布局还是二维布局
+ * 一般来说 一维布局flex  二维布局gird
+ * 2. 从内容出发还是从布局出发
+ * flex-从内容出发：先有一组内容(数量一般不固定)，需要均匀分布在容器中，由内容自身的大小决定占据的空间
+ * gird-从布局出发：先规划网格(数量一般固定)，然后填充元素
+ */
+
+export const AuthenticatedApp = () => {
+  const { logout } = useAuth();
+
+  return (
+    <Container>
+      <Header>
+        <HeaderLeft>
+          <h3>Logo</h3>
+          <h3>项目</h3>
+          <h3>用户</h3>
+        </HeaderLeft>
+        <HeaderRight>
+          <button onClick={logout}>登出</button>
+        </HeaderRight>
+      </Header>
+      <Nav>nav</Nav>
+      <Main>
+        <ProjectListScreen />
+      </Main>
+      <Aside>aside</Aside>
+      <Footer>footer</Footer>
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  display: grid;
+  grid-template-rows: 6rem 1fr 6rem;
+  grid-template-columns: 20rem 1fr 20rem;
+  grid-template-areas:
+    "header header header"
+    "nav main aside"
+    "footer footer footer";
+  height: 100vh;
+  grid-gap: 10rem;
+`;
+
+const Header = styled.header`
+  grid-area: header;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const HeaderRight = styled.div``;
+const Nav = styled.nav`
+  grid-area: nav;
+`;
+const Main = styled.main`
+  grid-area: main;
+`;
+const Aside = styled.aside`
+  grid-area: aside;
+`;
+const Footer = styled.footer`
+  grid-area: footer;
+`;
+
+```
+
+### 6-6 用Row布局页面
+
+新建**src/components/lib.tsx**
+
+```typescript
+import styled from "@emotion/styled";
+
+export const Row = styled.div<{
+  gap?: number | boolean;
+  between?: boolean;
+  MarginBottom?: number;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: ${(props) => (props.between ? "space-between" : undefined)};
+  margin-bottom: ${(props) => props.MarginBottom + "rem"};
+  //直接子元素
+  > * {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-right: ${(props) =>
+      typeof props.gap === "number"
+        ? props.gap + "rem"
+        : props.gap
+          ? "2rem"
+          : undefined};
+  }
+`;
+```
+
+修改authenticated-app.tsx
+
+```typescript
+import { useAuth } from "context/auth-context";
+import { ProjectListScreen } from "screens/project-list";
+import styled from "@emotion/styled";
+import { Row } from "components/lib";
+
+/**
+ * gri 和 flex各自的应用场景
+ * 1. 考虑是一维布局还是二维布局
+ * 一般来说 一维布局flex  二维布局gird
+ * 2. 从内容出发还是从布局出发
+ * flex: 从内容出发：先有一组内容(数量一般不固定)，需要均匀分布在容器中，由内容自身的大小决定占据的空间
+ * grid: 从布局出发：先规划网格(数量一般固定)，然后填充元素
+ */
+
+export const AuthenticatedApp = () => {
+  const { logout } = useAuth();
+
+  return (
+    <Container>
+      <Header between={true}>
+        <HeaderLeft gap={true}>
+          <h2>Logo</h2>
+          <h2>项目</h2>
+          <h2>用户</h2>
+        </HeaderLeft>
+        <HeaderRight>
+          <button onClick={logout}>登出</button>
+        </HeaderRight>
+      </Header>
+      <Main>
+        <ProjectListScreen />
+      </Main>
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  display: grid;
+  grid-template-rows: 6rem calc(100vh - 6rem);
+  height: 100vh;
+`;
+
+const Header = styled(Row)`
+  height: 6rem;
+`;
+const HeaderLeft = styled(Row)``;
+const HeaderRight = styled.div``;
+
+const Main = styled.main`
+  height: calc(100vh - 6rem);
+`;
+
+```
+
+### 6-7
+
+- **修改src/screens/projects-list/index.tsx**
+
+```typescript
+...
+
+import styled from "@emotion/styled";
+
+...
+
+  return (
+    <Container>
+      <h1>项目列表</h1>
+      <SearchPanel param={param} setParam={setParam} users={users} />
+      <List users={users} list={list} />
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  padding: 3.2rem;
+`;
+
+```
+
+- **src/screens/projects-list/search-panel.tsx添加行内样式**
+
+```typescript
+...
+export const SearchPanel = ({ param, setParam, users }: SearchPanelProps) => {
+  return (
+    // layout = "inline" 排列在一排
+    <Form style={{ marginBottom: "2rem" }} layout="inline">
+      <Form.Item>
+       ...
+      </Form.Item>
+      <Form.Item>
+      ...
+      </Form.Item>
+    </Form>
+  );
+};
+```
+
+- **src/screens/projects-list/list.tsx**
+
+**添加处理时间的库**
+
+```javascript
+yarn add dayjs
+```
+
+![image-20240115105950430](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115105950430.png)
+
+created现在距离**1970-01-10 0点（基准时间）**过了多少毫秒
+
+inferface Projects添加created
+
+```typescript
+interface Projects {
+  id: string;
+  name: string;
+  personId: string;
+  pin: boolean;
+  organization: string;
+  created: number;
+}
+```
+
+**List添加部门和创建时间列**
+
+```typescript
+export const List = ({ users, list }: ListProps) => {
+  return (
+    <Table
+      pagination={false}
+      columns={[
+        ...
+        {
+          title: "部门",
+          dataIndex: "organization",
+        },
+        ...
+        {
+          title: "创建时间",
+          render(value, project) {
+            return (
+              <span>
+                {project.created
+                  ? dayjs(project.created).format("YYYY-MM-DD")
+                  : "无"}
+              </span>
+            );
+          },
+        },
+      ]}
+      dataSource={list}
+    />
+  );
+};
+
+```
+
+- **处理Header**
+
+以svg的形式渲染softwareLogo
+
+src/authenticated-app.tsx
+
+```typescript
+...
+import { ReactComponent as SoftwareLogo } from "assets/software-logo.svg";
+...
+  return (
+    <Container>
+      <Header between={true}>
+        <HeaderLeft gap={true}>
+          <SoftwareLogo width="18rem" color="rgb(38,132,255)" />
+          <h2>项目</h2>
+          <h2>用户</h2>
+        </HeaderLeft>
+        <HeaderRight>
+			...
+        </HeaderRight>
+      </Header>
+      <Main>
+        <ProjectListScreen />
+      </Main>
+    </Container>
+  );
+};
+```
+
+antd的Dropdown组件优化登出按钮
+
+```typescript
+...
+import { Dropdown, Menu } from "antd";
+...
+
+export const AuthenticatedApp = () => {
+  const { logout, user } = useAuth();
+
+  return (
+    <Container>
+      <Header between={true}>
+        <HeaderLeft gap={true}>
+          <SoftwareLogo width="18rem" color="rgb(38,132,255)" />
+          <h2>项目</h2>
+          <h2>用户</h2>
+        </HeaderLeft>
+        <HeaderRight>
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item key={"logout"}>
+                  <a onClick={logout}>登出</a>
+                </Menu.Item>
+              </Menu>
+            }
+          >
+            <a onClick={(e) => e.preventDefault()}>Hi, {user?.name}</a>
+          </Dropdown>
+        </HeaderRight>
+      </Header>
+      <Main>
+        <ProjectListScreen />
+      </Main>
+    </Container>
+  );
+};
+...
+
+const Header = styled(Row)`
+  height: 6rem;
+  padding: 3.2rem;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  z-index: 1;
+`;
+```
