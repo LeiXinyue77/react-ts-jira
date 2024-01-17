@@ -1,8 +1,8 @@
-import { Table } from "antd";
+import { Table, TableProps } from "antd";
 import { User } from "./search-panel";
 import dayjs from "dayjs";
 
-interface Projects {
+interface Project {
   id: string;
   name: string;
   personId: string;
@@ -11,12 +11,13 @@ interface Projects {
   created: number;
 }
 
-interface ListProps {
-  list: Projects[];
+//删除list: Project[]，因为其已经隐含在Table的datasource里面
+//这里的改动涉及的antd Table的数据透传
+interface ListProps extends TableProps<Project> {
   users: User[];
 }
 
-export const List = ({ users, list }: ListProps) => {
+export const List = ({ users, ...props }: ListProps) => {
   return (
     <Table
       pagination={false}
@@ -55,7 +56,7 @@ export const List = ({ users, list }: ListProps) => {
           },
         },
       ]}
-      dataSource={list}
+      {...props}
     />
   );
 };

@@ -2257,7 +2257,7 @@ const Header = styled(Row)`
 
 ### 6-8 清除前面课程留下的警告信息
 
-- 为什么之前ts推断result为{}
+- **为什么之前ts推断result为{}**
 
 ![image-20240115210936508](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115210936508.png)
 
@@ -2286,13 +2286,17 @@ export const cleanObject = (object: { [key: string]: unknown }) => {
 };
 ```
 
-- 使用<a><a/>时必须给出href属性，否则不合法
+- **使用<a><a/>时必须给出href属性，否则不合法**
 
 src/authenticated-app.tsx src/unauthenticated-app/index.tsx
 
 用antd组件<Button type="link"><Button>替换
 
-#### TODO
+- **TODO**
+
+  eslint提示useEffect的依赖项不完整，若加上callback/client，浏览器会一直不停地向服务端发送请求
+
+  目前的解决方法：忽略eslint的提示 **eslint-disable-next-line react-hooks/exhaustive-deps**
 
 src/utils/index.ts
 
@@ -2317,7 +2321,7 @@ useEffect(() => {
 }, [debouncedParam]);
 ```
 
-- jira-dev-tool和项目冲突导致warning
+- **jira-dev-tool和项目冲突导致warning**
 
 ![image-20240115214921112](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115214921112.png)
 
@@ -2346,10 +2350,118 @@ loadServer(() =>
 ...
 ```
 
-设置React Query 为后续课程作准备
+**设置React Query 为后续课程作准备**
 
-![image-20240115221349399](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115221349399.png)
+修改src/context/index.tsx
 
-![image-20240115221404999](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240115221404999.png)
+```typescript
+...
+import { QueryClient, QueryClientProvider } from "react-query";
 
-**开发者控制台点击闪烁**
+export const AppProviders = ({ children }: { children: ReactNode }) => {
+  return (
+    <QueryClientProvider client={new QueryClient()}>
+      <AuthProvider>{children}</AuthProvider>;
+    </QueryClientProvider>
+  );
+};
+```
+
+修改src/index.tsx
+
+```typescript
+...
+import { loadServer, DevTools } from "jira-dev-tool";
+...
+//务必在jira-dev-tool后面引入
+import "antd/dist/antd.less";
+
+loadServer(() =>
+  ReactDOM.render(
+    <React.StrictMode>
+      <AppProviders>
+        <DevTools />
+        <App />
+      </AppProviders>
+    </React.StrictMode>,
+    document.getElementById("root"),
+  ),
+);
+...
+```
+
+- **TODO **
+
+  更新jira-dev-tool，点击后开发者控制台的设置按钮会不停地闪烁
+
+## 7 用户体验优化 -加载中和错误状态处理
+
+### 7-1 给页面添加Loading和Error状态，增加页面友好性
+
+修改 `src\screens\ProjectList\index.tsx`（新增 loading 状态 和 请求错误提示）（部分未修改内容省略）：
+
+```typescript
+...
+import { Typography } from "antd";
+
+export const ProjectList = () => {
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<null | Error>(null);
+
+  ...
+
+  useEffect(() => {
+    setIsLoading(true)
+    // React Hook "useHttp" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function.
+    client("projects", { data: cleanObject(lastParam) }).then(setList)
+      .catch(error => {
+        setList([])
+        setError(error)
+      })
+      .finally(() => setIsLoading(false));
+    // React Hook useEffect has a missing dependency: 'client'. Either include it or remove the dependency array.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastParam]);
+
+  ...
+
+  return (
+    <Container>
+      <h1>项目列表</h1>
+      <SearchPanel users={users} param={param} setParam={setParam} />
+      {error ? <Typography.Text type="danger">{error.message}</Typography.Text> : null}
+      <List loading={isLoading} users={users} dataSource={list} />
+    </Container>
+  );
+};
+
+...
+
+```
+
+修改 `src\screens\ProjectList\components\List.tsx`（`ListProps` 继承 `TableProps`, `Table` 的属性（[透传](https://so.csdn.net/so/search?q=透传&spm=1001.2101.3001.7020)））（部分未修改内容省略）
+
+```typescript
+import { Table, TableProps } from "antd";
+...
+
+interface ListProps extends TableProps<Project> {
+  users: User[];
+}
+
+// type PropsType = Omit<ListProps, 'users'>
+export const List = ({ users, ...props }: ListProps) => {
+  return (
+    <Table
+      pagination={false}
+      columns={...}
+      { ...props }
+    ></Table>
+  );
+};
+```
+
+**为方便后续在组件外再次配置 `Table` 的属性（透传），直接让 `ListProps` 继承 `TableProps`, `TableProps` 单独抽出到 `props`**
+
+![image-20240117204900565](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240117204900565.png)
