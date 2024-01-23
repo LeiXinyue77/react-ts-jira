@@ -2,7 +2,7 @@ import { Table, TableProps } from "antd";
 import { User } from "./search-panel";
 import dayjs from "dayjs";
 
-interface Project {
+export interface Project {
   id: string;
   name: string;
   personId: string;
@@ -13,6 +13,8 @@ interface Project {
 
 //删除list: Project[]，因为其已经隐含在Table的datasource里面
 //这里的改动涉及的antd Table的数据透传
+// type PropsType = Omit<ListProps, "users">;
+
 interface ListProps extends TableProps<Project> {
   users: User[];
 }

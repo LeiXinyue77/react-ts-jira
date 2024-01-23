@@ -2465,3 +2465,76 @@ export const List = ({ users, ...props }: ListProps) => {
 **为方便后续在组件外再次配置 `Table` 的属性（透传），直接让 `ListProps` 继承 `TableProps`, `TableProps` 单独抽出到 `props`**
 
 ![image-20240117204900565](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240117204900565.png)
+
+### 7-2 用高级 Hook-useAsync统一处理Loading和Error状态
+
+增加`src/utils/use-async.ts`
+
+```typescript
+import { useState } from "react";
+
+interface State<D> {
+  error: Error | null;
+  data: D | null;
+  stat: "idle" | "loading" | "error" | "success";
+}
+
+const defaultInitialState: State<null> = {
+  stat: "idle",
+  data: null,
+  error: null,
+};
+
+export const useAsync = <D>(initialState?: State<D>) => {
+  const [state, setState] = useState<State<D>>({
+    ...defaultInitialState,
+    ...initialState,
+  });
+
+  const setData = (data: D) =>
+    setState({
+      data,
+      stat: "success",
+      error: null,
+    });
+
+  const setError = (error: Error) =>
+    setState({
+      error,
+      stat: "error",
+      data: null,
+    });
+
+  //run用来触发异步请求
+  const run = (promise: Promise<D>) => {
+    if (!promise || !promise.then) {
+      throw new Error("请传入 Promise 类型数据");
+    }
+    setState({ ...state, stat: "loading" });
+    return promise
+      .then((data) => {
+        setData(data);
+        return data;
+      })
+      .catch((error) => {
+        setError(error);
+        return error;
+      });
+  };
+
+  return {
+    isIdle: state.stat === "idle",
+    isLoading: state.stat === "loading",
+    isError: state.stat === "error",
+    isSuccess: state.stat === "success",
+    run,
+    setData,
+    setError,
+    ...state,
+  };
+};
+```
+
+删除7-1在`src\screens\ProjectList\index.tsx`添加的`error`和`loading`状态，以及`list`状态
+
+**两层封装**
