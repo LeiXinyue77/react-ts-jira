@@ -46,7 +46,7 @@ REST API
 
 json-sever
 
-npm run json-server
+`npm run json-server`
 
 [typicode/json-server: Get a full fake REST API with zero coding in less than 30 seconds (seriously) (github.com)](https://github.com/typicode/json-server)
 
@@ -147,12 +147,12 @@ export const useDebounce = (value, delay) => {
   const [debounceValue, setDebounceValue] = useState(value);
 
   useEffect(() => {
-    // 每次在delay变化以后，设置一个定时器
+    // 每次在value变化以后，设置一个定时器
     const timeout = setTimeout(() => setDebounceValue(value), delay);
+    // 每次在上一个useEffect处理完再运行，清理上一次的timeout
     return () => clearTimeout(timeout);
   }, [value, delay]);
 
-  // 清理上一次的useEffect
   return debounceValue;
 };
 
@@ -170,6 +170,8 @@ useEffect(() => {
 ```
 
 ## 4 TS应用： JS神助攻-强类型
+
+[TypeScript 变量声明 | 菜鸟教程 (runoob.com)](https://www.runoob.com/typescript/ts-variables.html)
 
 本章专注于TS,首先我们会回顾第三章中的 JSX 代码，发现由于 JS 天然弱类型带来的脆弱性。然后用 TSX 改造第三章的 JSX 代码，**增强类型约束**，在真实场景中体会 TS 的优越性。然后实践 TS 的进阶知识泛型，最后通过一个作业练习加强大家对 Hook、TS 和泛型的理解。
 
@@ -832,7 +834,7 @@ package.json
 
 ![image-20240108103043393](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240108103043393.png)
 
-##### auth-provider
+auth-provider
 
 修改 `src\screens\ProjectList\components\SearchPanel.tsx`，为 `User` 新增 `token`:
 
@@ -859,6 +861,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 
 const localStorageKey = "__auth_provider_token__";
 export const getToken = () => window.localStorage.getItem(localStorageKey);
+//TypeScript 中的解构语法
 export const handleUserResponse = ({ user }: { user: User }) => {
   window.localStorage.setItem(localStorageKey, user.token || "");
   return user;
@@ -892,6 +895,8 @@ export const logout = () => window.localStorage.removeItem(localStorageKey);
 ```
 
 ### 5-5 UseContext储存全局用户信息
+
+[使用 Context 深层传递参数 – React 中文文档 (docschina.org)](https://react.docschina.org/learn/passing-data-deeply-with-context)
 
 `新建src\context\auth-context.tsx`
 
@@ -947,7 +952,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 ```
 
-3. **// 创建 useAuth 用来全局使用这几个属性**
+3. **创建 useAuth 用来全局使用这几个属性**
 
 ```typescript
 export const useAuth = () => {
@@ -1367,7 +1372,7 @@ type Person = {
 };
 const xiaoming: Partial<Person> = { name: "xiaoming" };
 const shenmiren1: Omit<Person, "name"> = { age: 18 };
-const shenmiren2: Omit<Person, "name" | "age"> = { age: 18 };
+const shenmiren2: Omit<Person, "name" | "age"> = {};
 ```
 
 ### 5-10 Utility Type的实现
@@ -2535,6 +2540,428 @@ export const useAsync = <D>(initialState?: State<D>) => {
 };
 ```
 
-删除7-1在`src\screens\ProjectList\index.tsx`添加的`error`和`loading`状态，以及`list`状态
-
 **两层封装**
+
+- 删除7-1在`src\screens\ProjectList\index.tsx`添加的`error`和`loading`状态，以及`list`状态
+
+```typescript
+import { SearchPanel } from "./search-panel";
+import { List } from "./list";
+import { useEffect, useState } from "react";
+import { cleanObject, useMount, useDebounce } from "utils";
+import qs from "qs";
+import { useHttp } from "utils/http";
+import styled from "@emotion/styled";
+import { Typography } from "antd";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
+export const ProjectListScreen = () => {
+  const [users, setUsers] = useState([]);
+  const [param, setParam] = useState({
+    name: "",
+    personId: "",
+  });
+  const debouncedParam = useDebounce(param, 200);
+  const client = useHttp();
+  const {run, isLoading, error, data:list}=useAsync<Project[]>()
+
+  useEffect(() => {
+      run(client("projects", { data: cleanObject(debouncedParam) }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedParam]);
+
+  useMount(() => {
+    client("users").then(setUsers);
+  });
+
+  return (
+    <Container>
+      <h1>项目列表</h1>
+      <SearchPanel param={param} setParam={setParam} users={users} />
+      {error ? (
+        <Typography.Text type="danger">{error.message}</Typography.Text>
+      ) : null}
+      <List loading={isLoading} users={users} dataSource={list} />
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  padding: 3.2rem;
+`;
+```
+
+- 合并` const client = useHttp();`和 ` const {run, isLoading, error, data:list}=useAsync<Project[]>()`，继续抽象封装
+
+  新建`projects.ts`
+
+  ```typescript
+  import { Project } from "screens/project-list/list";
+  import { useAsync } from "./use-async";
+  import { useEffect } from "react";
+  import { cleanObject } from "utils";
+  import { useHttp } from "./http";
+
+  export const useProjects = (param?: Partial<Project>) => {
+    const client = useHttp();
+    const { run, ...result } = useAsync<Project[]>();
+
+    useEffect(() => {
+      run(client("projects", { data: cleanObject(param || {}) }));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [param]);
+
+    return result;
+  };
+  ```
+
+  新建`users.ts`
+
+  ```typescript
+  import { User } from "screens/project-list/search-panel";
+  import { useHttp } from "./http";
+  import { useAsync } from "./use-async";
+  import { useEffect } from "react";
+  import { cleanObject } from "utils";
+
+  export const useUsers = (param?: Partial<User>) => {
+    const client = useHttp();
+    const { run, ...result } = useAsync<User[]>();
+
+    useEffect(() => {
+      run(client("users", { data: cleanObject(param || {}) }));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [param]);
+
+    return result;
+  };
+  ```
+
+  修改`src\screens\project-list\index.tsx`
+
+  ```typescript
+  import { SearchPanel } from "./search-panel";
+  import { List, Project } from "./list";
+  import { useEffect, useState } from "react";
+  import { cleanObject, useMount, useDebounce } from "utils";
+  import qs from "qs";
+  import { useHttp } from "utils/http";
+  import styled from "@emotion/styled";
+  import { Typography } from "antd";
+  import { useAsync } from "utils/use-async";
+  import { useProjects } from "utils/projects";
+  import { useUsers } from "utils/user";
+
+  export const ProjectListScreen = () => {
+    const [param, setParam] = useState({
+      name: "",
+      personId: "",
+    });
+    const debouncedParam = useDebounce(param, 200);
+    const { isLoading, error, data: list } = useProjects(debouncedParam);
+    const { data: users } = useUsers();
+
+    return (
+      <Container>
+        <h1>项目列表</h1>
+        <SearchPanel param={param} setParam={setParam} users={users || []} />
+        {error ? (
+          <Typography.Text type="danger">{error.message}</Typography.Text>
+        ) : null}
+        <List loading={isLoading} users={users || []} dataSource={list || []} />
+      </Container>
+    );
+  };
+
+  const Container = styled.div`
+    padding: 3.2rem;
+  `;
+  ```
+
+### 7-3 登录注册页面Loading和Error状态处理，与Event Loop详解
+
+- 登录界面：用户名或密码不正确
+
+修改`src\unauthenticated-app\index.tsx`
+
+```typescript
+...
+
+export const UnauthenticatedApp = () => {
+...
+  const [error, setError] = useState<Error | null>(null);
+  return (
+    <Container>
+      <Header />
+      <Background />
+      <ShadowCard>
+        ...
+        {error ? (
+          <Typography.Text type="danger">{error.message}</Typography.Text>
+        ) : null}
+        {isRegister ? (
+          <RegisterScreen onError={setError} />
+        ) : (
+          <LoginScreen onError={setError} />
+        )}
+		...
+      </ShadowCard>
+    </Container>
+  );
+};
+...
+```
+
+修改`src\unauthenticated-app\login.tsx`和`src\unauthenticated-app\register.tsx`
+
+```typescript
+...
+export const LoginScreen = ({
+  onError,
+}: {
+  onError: (error: Error) => void;
+}) => {
+  // 在子组件中使用数据
+  const { login, user } = useAuth();
+
+  const handleSubmit = async (values: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      await login(values);
+    } catch (e: any) {
+      onError(e as Error);
+    }
+  };
+	...
+};
+```
+
+**注意`login(values)`返回的是promise类型，即异步函数**
+
+```typescript
+...
+export const RegisterScreen = ({
+  onError,
+}: {
+  onError: (error: Error) => void;
+}) => {
+  // 在子组件中使用数据
+  const { login, user } = useAuth();
+
+  const handleSubmit = async (values: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      await Register(values);
+    } catch (e: any) {
+      onError(e as Error);
+    }
+  };
+	...
+};
+```
+
+修改`src\auth-provider.ts`
+
+`Promise.reject(data)` 修改为`Promise.reject(await res.json())`
+
+```typescript
+export const login = (data: { username: string; password: string }) => {
+  return fetch(`${apiUrl}/login`, {
+    ...
+  }).then(async (res) => {
+    if (res.ok) {
+      return handleUserResponse(await res.json());
+    } else {
+      return Promise.reject(await res.json());
+    }
+  });
+};
+
+export const register = (data: { username: string; password: string }) => {
+  return fetch(`${apiUrl}/register`, {
+  ...
+  }).then(async (res) => {
+    if (res.ok) {
+      return handleUserResponse(await res.json());
+    } else {
+      return Promise.reject(await res.json());
+    }
+  });
+};
+```
+
+- 注册界面：密码验证
+
+修改`src\unauthenticated-app\register.tsx`
+
+```typescript
+...
+export const RegisterScreen = ({
+  onError,
+}: {
+  onError: (error: Error) => void;
+}) => {
+ ...
+  const handleSubmit = async ({
+    cpassword,
+    ...values
+  }: {
+    username: string;
+    password: string;
+    cpassword: string;
+  }) => {
+    if (cpassword !== values.password) {
+      onError(new Error("请确认两次输入的密码相同"));
+      return;
+    }
+    ...
+  };
+
+  return (
+    <Form onFinish={handleSubmit}>
+      ...
+      <Form.Item
+        name={"cpassword"}
+        rules={[{ required: true, message: "请确认密码" }]}
+      >
+        <Input placeholder={"确认密码"} type="password" id="cpassword" />
+      </Form.Item>
+     ...
+    </Form>
+  );
+};
+```
+
+- 使用`useAsync`处理登录和注册界面的loading状态
+
+修改`src\utils\use-async.ts`
+
+**catch会消化异常，如果不主动抛出，外部则接收不到异常**
+
+```typescript
+//run用来触发异步请求
+const run = (promise: Promise<D>) => {
+  if (!promise || !promise.then) {
+    throw new Error("请传入 Promise 类型数据");
+  }
+  setState({ ...state, stat: "loading" });
+  return (
+    promise
+      .then((data) => {
+        setData(data);
+        return data;
+      })
+      //catch会消化异常，如果不主动抛出，外部则接收不到异常
+      .catch((error) => {
+        setError(error);
+        //return error;
+        return Promise.reject(error);
+      })
+  );
+};
+```
+
+修改`src\unauthenticated-app\login.tsx`
+
+```typescript
+...
+export const LoginScreen = ({
+  onError,
+}: {
+  onError: (error: Error) => void;
+}) => {
+  // 在子组件中使用数据
+  ...
+  const { run, isLoading } = useAsync();
+
+  const handleSubmit = async (values: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      await run(login(values));
+    } catch (e: any) {
+    ...
+    }
+  };
+
+    return (
+    <Form onFinish={handleSubmit}>
+    ...
+      <Form.Item>
+        <LongButton loading={isLoading} htmlType="submit" type="primary">
+          登录
+        </LongButton>
+      </Form.Item>
+    </Form>
+  );
+};
+```
+
+**为什么不使用 const { run, isLoading，error} = useAsync()?**
+
+![74c4e15d9074ba7d1079f2b7e1be453](C:\Users\Xinyue Lei\Documents\WeChat Files\wxid_rppok8t3ynud22\FileStorage\Temp\74c4e15d9074ba7d1079f2b7e1be453.jpg)
+
+打印结果：null，“我是error”
+
+同步和异步混用是应该使用try...catch
+
+- 优化代码，使得error的抛出成为一个可选项
+
+修改`src\utils\use-async.ts`
+
+```typescript
+const defaultConfig = {
+  throwOnError: false,
+};
+
+export const useAsync = <D>(
+  initialState?: State<D>,
+  initialConfig?: typeof defaultConfig,
+) => {
+  const config = { ...defaultConfig, ...initialConfig };
+  ...
+  //run用来触发异步请求
+  const run = (promise: Promise<D>) => {
+	...
+    return (
+    ...
+        //catch会消化异常，如果不主动抛出，外部则接收不到异常
+        .catch((error) => {
+          setError(error);
+          if (config.throwOnError) return Promise.reject(error);
+          return error;
+          //return Promise.reject(error);
+        })
+    );
+  };
+...
+};
+
+```
+
+修改`src\unauthenticated-app\login.tsx`
+
+```typescript
+...
+export const LoginScreen = ({
+  onError,
+}: {
+  onError: (error: Error) => void;
+}) => {
+  // 在子组件中使用数据
+  const { login, user } = useAuth();
+  const { run, isLoading } = useAsync(undefined, {
+    throwOnError: true,
+  });
+  ...
+};
+
+```
+
+同理修改`src\unauthenticated-app\register.tsx`

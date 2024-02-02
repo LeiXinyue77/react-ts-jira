@@ -8,6 +8,7 @@ const localStorageKey = "__auth_provider_token__";
 export const getToken = () => window.localStorage.getItem(localStorageKey);
 // 用户登录信息储存中localStorage中
 export const handleUserResponse = ({ user }: { user: User }) => {
+  //TypeScript 中的解构语法
   window.localStorage.setItem(localStorageKey, user.token || "");
   return user;
 };
@@ -21,7 +22,7 @@ export const login = (data: { username: string; password: string }) => {
     if (res.ok) {
       return handleUserResponse(await res.json());
     } else {
-      return Promise.reject(data);
+      return Promise.reject(await res.json());
     }
   });
 };
@@ -35,7 +36,7 @@ export const register = (data: { username: string; password: string }) => {
     if (res.ok) {
       return handleUserResponse(await res.json());
     } else {
-      return Promise.reject(data);
+      return Promise.reject(await res.json());
     }
   });
 };

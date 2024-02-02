@@ -13,7 +13,7 @@ interface Config extends RequestInit {
 
 export const http = async (
   endpoint: string,
-  { data, token, headers, ...customConfig }: Config = {},
+  { data, token, headers, ...customConfig }: Config = {}, //参数设定默认值 自动变成可选
 ): Promise<any> => {
   const config = {
     method: "GET",
@@ -44,7 +44,7 @@ export const http = async (
       if (response.ok) {
         return data;
       } else {
-        return Promise.reject(data); //401fetch API 不会自动抛出异常 需要手动抛出
+        return Promise.reject(data); //401 500 fetch API 不会自动抛出异常 需要手动抛出
       }
     });
 };
