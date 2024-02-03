@@ -3,6 +3,8 @@ import * as auth from "auth-provider";
 import { User } from "screens/project-list/search-panel";
 import { http } from "utils/http";
 import { useMount } from "utils";
+import { useAsync } from "utils/use-async";
+import { FullPageErrorFallBack, FullPageLoading } from "components/lib";
 
 // 定义一下AuhForm属性接口
 interface AuthForm {
@@ -37,7 +39,17 @@ AuthContext.displayName = "AuthContext";
 //  创建 AuthProvider 返回Context.Provider的jsx
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 用到hooks useState，因为默认为空，赋值后为User，所以用联合类型，传到泛型里。
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
+  const {
+    data: user,
+    error,
+    isLoading,
+    isIdle,
+    isError,
+    run,
+    setData: setUser,
+  } = useAsync<User | null>();
+
   // 分别定义 login, register, logout这几个函数
   const login = (form: AuthForm) => auth.login(form).then(setUser);
   const register = (form: AuthForm) => auth.register(form).then(setUser);
@@ -45,8 +57,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   //用户登录状态下，刷新时，登录状态的维持
   useMount(() => {
-    bootstrapUser().then(setUser);
+    run(bootstrapUser());
+    //bootstrapUser().then(setUser);
   });
+
+  if (isIdle || isLoading) {
+    return <FullPageLoading />;
+    //return <p>loading...</p>;
+  }
+
+  if (isError) {
+    return <FullPageErrorFallBack error={error} />;
+  }
 
   // children 表示该标签的子标签
   return (

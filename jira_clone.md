@@ -2681,7 +2681,7 @@ const Container = styled.div`
 
 ### 7-3 登录注册页面Loading和Error状态处理，与Event Loop详解
 
-- 登录界面：用户名或密码不正确
+- 登录和注册界面：用户名或密码不正确
 
 修改`src\unauthenticated-app\index.tsx`
 
@@ -2965,3 +2965,114 @@ export const LoginScreen = ({
 ```
 
 同理修改`src\unauthenticated-app\register.tsx`
+
+### 7-4 用useAsync获取用户信息
+
+- 解决项目列表页刷新，页面加载过程中，先是出现登录注册页面，me接口成功返回user信息后，项目列表页面再显示的问题
+
+我们希望me接口还未成功返回时，页面上渲染一个**loading**
+
+增加FullPageLoading模块`src\components\lib.tsx`
+
+```typescript
+...
+import { Spin } from "antd";
+
+...
+const FullPage = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const FullPageLoading = () => (
+  <FullPage>
+    <Spin size="large" />
+  </FullPage>
+);
+```
+
+修改`src\context\auth-context.tsx`，**使用useAsync获取用户信息**
+
+```typescript
+...
+import { FullPageLoading } from "components/lib";
+
+...
+//  创建 AuthProvider 返回Context.Provider的jsx
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // 用到hooks useState，因为默认为空，赋值后为User，所以用联合类型，传到泛型里。
+  // const [user, setUser] = useState<User | null>(null);
+  const {
+    data: user,
+    error,
+    isLoading,
+    isIdle,
+    isError,
+    run,
+    setData: setUser,
+  } = useAsync<User | null>();
+
+ ...
+
+  //用户登录状态下，刷新时，登录状态的维持
+  useMount(() => {
+    run(bootstrapUser());
+    //bootstrapUser().then(setUser);
+  });
+
+  if (isIdle || isLoading) {
+    return <FullPageLoading />;
+    //return <p>loading...</p>;
+  }
+
+ ...
+};
+...
+```
+
+全局加载页面
+
+![image-20240203201120605](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203201120605.png)
+
+- me接口错误时，显示错误信息
+
+增加FullPageErrorFallBack模块`src\components\lib.tsx`
+
+```typescript
+export const FullPageErrorFallBack = ({ error }: { error: Error | null }) => (
+  <FullPage>
+    <Typography.Text type="danger">{error?.message}</Typography.Text>
+  </FullPage>
+);
+```
+
+修改`src\context\auth-context.tsx`，**使用useAsync获取用户信息**
+
+```typescript
+...
+  if (isError) {
+    return <FullPageErrorFallBack error={error} />;
+  }
+...
+```
+
+jira-dev-tool请求失败比例设置为100%
+
+![image-20240203201920118](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203201920118.png)
+
+一个小问题，`AuthProvider`的`children`属性不会渲染，导致`jira-dev-tool`的齿轮消失
+
+![image-20240203202251733](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203202251733.png)
+
+修改`src\context\auth-context.tsx`
+
+```typescript
+export const FullPageErrorFallBack = ({ error }: { error: Error | null }) => (
+  <FullPage>
+    <DevTools />
+    <Typography.Text type="danger">{error?.message}</Typography.Text>
+  </FullPage>
+);
+```
