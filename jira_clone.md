@@ -3076,3 +3076,80 @@ export const FullPageErrorFallBack = ({ error }: { error: Error | null }) => (
   </FullPage>
 );
 ```
+
+### 7-5 实现Error Boundries，捕获边界错误
+
+人为设置一些错误
+
+![image-20240203210904366](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203210904366.png)
+
+`npm install -g serve`
+
+`npm run build` 生产环境打包
+
+![image-20240203204217986](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203204217986.png)
+
+根据终端提示显示，启动一个静态服务器
+
+`serve -s build`
+
+![image-20240203211130850](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203211130850.png)
+
+生产环境下，渲染阶段出现异常，（React)整个组件树都会被卸载
+
+注册后进入项目列表页面，显示一片空白
+
+#### 遗留错误
+
+![image-20240203214526790](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203214526790.png)S
+
+手动实现异常边界的捕获`src\components\error_boundary.tsx`
+
+```typescript
+import React, { ReactNode } from "react";
+
+type FallbackRender = (props: { error: Error | null }) => React.ReactElement;
+export class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{
+    fallbackRender: FallbackRender;
+  }>,
+  { error: Error | null }
+> {
+  state = { error: null };
+
+  //当子组件抛出异常，这里会接收到并且调用
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  render() {
+    const { error } = this.state;
+    const { fallbackRender, children } = this.props;
+    if (error) {
+      return fallbackRender({ error });
+    }
+    return children;
+  }
+}
+```
+
+包裹子组件`src\App.tsx`
+
+```typescript
+function App() {
+  const { user } = useAuth();
+  return (
+    <div className="App">
+      <ErrorBoundary fallbackRender={FullPageErrorFallBack}>
+        {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+      </ErrorBoundary>
+    </div>
+  );
+}
+```
+
+![image-20240203221549216](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240203221549216.png)
+
+删除错误代码
+
+注意：ErrorBoundary不会捕获事件中的异常（比如：点击事件）
