@@ -1,6 +1,7 @@
 import { Table, TableProps } from "antd";
 import { User } from "./search-panel";
 import dayjs from "dayjs";
+import styled from "@emotion/styled";
 
 export interface Project {
   id: string;
@@ -62,3 +63,7 @@ export const List = ({ users, ...props }: ListProps) => {
     />
   );
 };
+
+const Container = styled.div`
+  padding: 3.2rem;
+`;

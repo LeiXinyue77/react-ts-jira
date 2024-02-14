@@ -1695,7 +1695,7 @@ export const SearchPanel = ({ param, setParam, users }: SearchPanelProps) => {
 - **安装emotion库**
 
   ```javascript
-  yarn add add @emotion/react @emotion/style
+  yarn add @emotion/react @emotion/style
   ```
 
 - **安装插件vscode-styled-components** (tips：在 emotion 编写css， 若是发现代码没有高亮，则需要安装 vscode/webstrom 插件:)
@@ -3153,3 +3153,8 @@ function App() {
 删除错误代码
 
 注意：ErrorBoundary不会捕获事件中的异常（比如：点击事件）
+
+### 8- 1 用useRef实现useDocumentTitle - useRef与Hook闭包详解上
+
+1. 方案一 : react-helmet
+2.

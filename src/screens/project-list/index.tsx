@@ -1,7 +1,7 @@
 import { SearchPanel } from "./search-panel";
 import { List, Project } from "./list";
 import { useEffect, useState } from "react";
-import { cleanObject, useMount, useDebounce } from "utils";
+import { cleanObject, useMount, useDebounce, useDocumentTitle } from "utils";
 import qs from "qs";
 import { useHttp } from "utils/http";
 import styled from "@emotion/styled";
@@ -18,6 +18,8 @@ export const ProjectListScreen = () => {
   const debouncedParam = useDebounce(param, 200);
   const { isLoading, error, data: list } = useProjects(debouncedParam);
   const { data: users } = useUsers();
+
+  useDocumentTitle("项目列表", false);
 
   return (
     <Container>
