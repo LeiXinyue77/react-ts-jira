@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 // eslint-disable-next-line no-undef
 // {checked:false}判断出错
@@ -74,7 +74,13 @@ export const useDocumentTitle = (
   title: string,
   keepOnUnmout: boolean = true,
 ) => {
-  const oldTitle = document.title;
+  //页面加载时： oldTitle === 旧 Title "React App"
+  //加载后：oldTitle === 新 title
+  //const oldTitle = document.title;
+
+  //页面加载时： oldTitle === 旧 Title "React App"
+  //加载后：oldTitle === 旧 Title "React App"
+  const oldTitle = useRef(document.title).current;
 
   useEffect(() => {
     document.title = title;
@@ -83,8 +89,9 @@ export const useDocumentTitle = (
   useEffect(() => {
     return () => {
       if (!keepOnUnmout) {
+        //如果不指定依赖， 读到的是旧Title
         document.title = oldTitle;
       }
     };
-  }, []);
+  }, [keepOnUnmout, oldTitle]);
 };

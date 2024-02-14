@@ -3157,4 +3157,4 @@ function App() {
 ### 8- 1 用useRef实现useDocumentTitle - useRef与Hook闭包详解上
 
 1. 方案一 : react-helmet
-2.
+2. 方案二：自定义hook **useDocumentTitle**
