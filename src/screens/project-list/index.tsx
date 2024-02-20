@@ -11,22 +11,34 @@ import { useProjects } from "utils/projects";
 import { useUsers } from "utils/user";
 import { useUrlQueryParam } from "utils/url";
 import { useProjectsSearchParams } from "./utils";
+import { Button } from "antd/lib/radio";
 
 export const ProjectListScreen = () => {
   useDocumentTitle("项目列表", false);
 
   const [param, setParam] = useProjectsSearchParams();
-  const { isLoading, error, data: list } = useProjects(useDebounce(param, 200));
+  const {
+    isLoading,
+    error,
+    data: list,
+    retry,
+  } = useProjects(useDebounce(param, 200));
   const { data: users } = useUsers();
 
   return (
     <Container>
       <h1>项目列表</h1>
+      {/* <Button onClick={retry}>retry</Button> */}
       <SearchPanel param={param} setParam={setParam} users={users || []} />
       {error ? (
         <Typography.Text type="danger">{error.message}</Typography.Text>
       ) : null}
-      <List loading={isLoading} users={users || []} dataSource={list || []} />
+      <List
+        refresh={retry}
+        loading={isLoading}
+        users={users || []}
+        dataSource={list || []}
+      />
     </Container>
   );
 };
