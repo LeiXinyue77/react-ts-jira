@@ -3158,3 +3158,35 @@ function App() {
 
 1. 方案一 : react-helmet
 2. 方案二：自定义hook **useDocumentTitle**
+
+8-3
+
+[在react-router-dom中出现了"Cannot destructure property 'basename' of ~ as it is null."的错误 - Blog - Silicon Cloud (silicloud.com)](https://www.silicloud.com/zh/blog/在react-router-dom中出现了cannot-destructure-property-basename-of-as-it-is-null-的错误。/)
+
+单页面应用-路由页面
+
+react-router-dom(v6) warning: No routes matched location "/"
+
+```typescript
+export const AuthenticatedApp = () => {
+  return (
+    <Container>
+      <PageHeader />
+      <Main>
+        <Router>
+          <Routes>
+           // 设置一个重定向路径;Navigate to="xxx" 重定向 ;
+            <Route path="/" element={<Navigate to="projects" />} />
+            <Route path={"/projects"} element={<ProjectListScreen />} />
+            {/* <Route path="/" element={<ProjectScreen />} /> */}
+            <Route
+              path={"/projects/:projectId/*"}
+              element={<ProjectScreen />}
+            />
+          </Routes>
+        </Router>
+      </Main>
+    </Container>
+  );
+};
+```

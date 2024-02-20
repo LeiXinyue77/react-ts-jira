@@ -2,7 +2,11 @@ import { Table, TableProps } from "antd";
 import { User } from "./search-panel";
 import dayjs from "dayjs";
 import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
 
+// react-router和react-router-dom的关系，类似于react和react-dom react-native react-vr的关系
+
+// TODO 把所有id改成Number类型
 export interface Project {
   id: string;
   name: string;
@@ -23,13 +27,17 @@ interface ListProps extends TableProps<Project> {
 export const List = ({ users, ...props }: ListProps) => {
   return (
     <Table
+      rowKey={(record) => record.id}
       pagination={false}
       columns={[
         {
           title: "名称",
-          dataIndex: "name",
+          // dataIndex: "name",
           //localeCompare 可排序中文字符
           sorter: (a, b) => a.name.localeCompare(b.name),
+          render(value, project) {
+            return <Link to={String(project.id)}>{project.name}</Link>;
+          },
         },
         {
           title: "部门",

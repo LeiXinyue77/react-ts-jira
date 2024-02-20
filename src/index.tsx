@@ -6,6 +6,7 @@ import { loadServer, DevTools } from "jira-dev-tool";
 import { AppProviders } from "context";
 //务必在jira-dev-tool后面引入
 import "antd/dist/antd.less";
+import { BrowserRouter as Router } from "react-router-dom";
 
 loadServer(() =>
   ReactDOM.render(
