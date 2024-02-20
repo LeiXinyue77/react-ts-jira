@@ -3190,3 +3190,13 @@ export const AuthenticatedApp = () => {
   );
 };
 ```
+
+基本类型，可以放到依赖里；组件状态，可以放到依赖里；非组件状态的对象，绝不可以放到依赖里
+
+https://codesandbox.io/s/keen-wave-tlz9s?file=/src/App.js
+
+解决无限循环的问题**UseMemo**
+
+???
+
+Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.

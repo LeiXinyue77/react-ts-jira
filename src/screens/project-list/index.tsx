@@ -9,17 +9,22 @@ import { Typography } from "antd";
 import { useAsync } from "utils/use-async";
 import { useProjects } from "utils/projects";
 import { useUsers } from "utils/user";
+import { useUrlQueryParam } from "utils/url";
 
 export const ProjectListScreen = () => {
-  const [param, setParam] = useState({
-    name: "",
-    personId: "",
-  });
+  // const [, setParam] = useState({
+  //   name: "",
+  //   personId: "",
+  // });
+  // const [keys] = useState<("name" | "personId")[]>(["name", "personId"]);
+  const [param, setParam] = useUrlQueryParam(["name", "personId"]);
   const debouncedParam = useDebounce(param, 200);
   const { isLoading, error, data: list } = useProjects(debouncedParam);
   const { data: users } = useUsers();
 
   useDocumentTitle("项目列表", false);
+
+  //console.log(useUrlQueryParam(["name", "personId"]));
 
   return (
     <Container>
@@ -32,6 +37,8 @@ export const ProjectListScreen = () => {
     </Container>
   );
 };
+
+// ProjectListScreen.whyDidYouRender = true;
 
 const Container = styled.div`
   padding: 3.2rem;
