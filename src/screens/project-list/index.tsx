@@ -10,21 +10,14 @@ import { useAsync } from "utils/use-async";
 import { useProjects } from "utils/projects";
 import { useUsers } from "utils/user";
 import { useUrlQueryParam } from "utils/url";
+import { useProjectsSearchParams } from "./utils";
 
 export const ProjectListScreen = () => {
-  // const [, setParam] = useState({
-  //   name: "",
-  //   personId: "",
-  // });
-  // const [keys] = useState<("name" | "personId")[]>(["name", "personId"]);
-  const [param, setParam] = useUrlQueryParam(["name", "personId"]);
-  const debouncedParam = useDebounce(param, 200);
-  const { isLoading, error, data: list } = useProjects(debouncedParam);
-  const { data: users } = useUsers();
-
   useDocumentTitle("项目列表", false);
 
-  //console.log(useUrlQueryParam(["name", "personId"]));
+  const [param, setParam] = useProjectsSearchParams();
+  const { isLoading, error, data: list } = useProjects(useDebounce(param, 200));
+  const { data: users } = useUsers();
 
   return (
     <Container>
