@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useMountedRef } from "utils";
 
 interface State<D> {
@@ -32,49 +32,55 @@ export const useAsync = <D>(
   // useState直接传入函数的含义是：惰性初始化；所以，要用useState保存函数，不能直接传入函数
   // https://codesandbox.io/s/blissful-water-230u4?file=/src/App.js
   const [retry, setRetry] = useState(() => () => {});
-  const setData = (data: D) =>
-    setState({
-      data,
-      stat: "success",
-      error: null,
-    });
+  const setData = useCallback(
+    (data: D) =>
+      setState({
+        data,
+        stat: "success",
+        error: null,
+      }),
+    [],
+  );
 
-  const setError = (error: Error) =>
-    setState({
-      error,
-      stat: "error",
-      data: null,
-    });
+  const setError = useCallback(
+    (error: Error) =>
+      setState({
+        error,
+        stat: "error",
+        data: null,
+      }),
+    [],
+  );
 
   //run用来触发异步请求
-  const run = (
-    promise: Promise<D>,
-    runConfig?: { retry: () => Promise<D> },
-  ) => {
-    if (!promise || !promise.then) {
-      throw new Error("请传入 Promise 类型数据");
-    }
-    setRetry(() => () => {
-      if (runConfig?.retry) {
-        run(runConfig?.retry(), runConfig);
+  const run = useCallback(
+    (promise: Promise<D>, runConfig?: { retry: () => Promise<D> }) => {
+      if (!promise || !promise.then) {
+        throw new Error("请传入 Promise 类型数据");
       }
-    });
-    setState({ ...state, stat: "loading" });
-    return (
-      promise
-        .then((data) => {
-          if (mountedRef.current) setData(data);
-          return data;
-        })
-        //catch会消化异常，如果不主动抛出，外部则接收不到异常
-        .catch((error) => {
-          setError(error);
-          if (config.throwOnError) return Promise.reject(error);
-          return error;
-          //return Promise.reject(error);
-        })
-    );
-  };
+      setRetry(() => () => {
+        if (runConfig?.retry) {
+          run(runConfig?.retry(), runConfig);
+        }
+      });
+      setState((prevState) => ({ ...prevState, stat: "loading" }));
+      return (
+        promise
+          .then((data) => {
+            if (mountedRef.current) setData(data);
+            return data;
+          })
+          //catch会消化异常，如果不主动抛出，外部则接收不到异常
+          .catch((error) => {
+            setError(error);
+            if (config.throwOnError) return Promise.reject(error);
+            return error;
+            //return Promise.reject(error);
+          })
+      );
+    },
+    [config.throwOnError, mountedRef, setData, setError],
+  );
 
   return {
     isIdle: state.stat === "idle",
