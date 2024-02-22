@@ -3195,8 +3195,16 @@ export const AuthenticatedApp = () => {
 
 https://codesandbox.io/s/keen-wave-tlz9s?file=/src/App.js
 
-解决无限循环的问题**UseMemo**
+解决循环依赖的问题**UseMemo**
 
 ???
 
 Warning: Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
+
+**useState保存函数惰性初始化**
+
+## 10 深入React 状态管理与Redux机制
+
+useCallback
+
+![image-20240222124751913](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240222124751913.png)

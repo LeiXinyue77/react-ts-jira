@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMountedRef } from "utils";
 
 interface State<D> {
   error: Error | null;
@@ -25,6 +26,8 @@ export const useAsync = <D>(
     ...defaultInitialState,
     ...initialState,
   });
+
+  const mountedRef = useMountedRef();
 
   // useState直接传入函数的含义是：惰性初始化；所以，要用useState保存函数，不能直接传入函数
   // https://codesandbox.io/s/blissful-water-230u4?file=/src/App.js
@@ -60,7 +63,7 @@ export const useAsync = <D>(
     return (
       promise
         .then((data) => {
-          setData(data);
+          if (mountedRef.current) setData(data);
           return data;
         })
         //catch会消化异常，如果不主动抛出，外部则接收不到异常
