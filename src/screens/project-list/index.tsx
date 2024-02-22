@@ -14,9 +14,7 @@ import { useProjectsSearchParams } from "./utils";
 import { Button } from "antd/lib/radio";
 import { Row } from "components/lib";
 
-export const ProjectListScreen = (props: {
-  setProjectModalOpen: (isOpen: boolean) => void;
-}) => {
+export const ProjectListScreen = (props: { projectButton: JSX.Element }) => {
   useDocumentTitle("项目列表", false);
 
   const [param, setParam] = useProjectsSearchParams();
@@ -32,9 +30,10 @@ export const ProjectListScreen = (props: {
     <Container>
       <Row between={true}>
         <h1>项目列表</h1>
-        <Button onClick={() => props.setProjectModalOpen(true)}>
+        {props.projectButton}
+        {/* <Button onClick={() => props.setProjectModalOpen(true)}>
           创建项目
-        </Button>
+        </Button> */}
       </Row>
       {/* <Button onClick={retry}>retry</Button> */}
       <SearchPanel param={param} setParam={setParam} users={users || []} />
@@ -42,7 +41,7 @@ export const ProjectListScreen = (props: {
         <Typography.Text type="danger">{error.message}</Typography.Text>
       ) : null}
       <List
-        setProjectModalOpen={props.setProjectModalOpen}
+        projectButton={props.projectButton}
         refresh={retry}
         loading={isLoading}
         users={users || []}

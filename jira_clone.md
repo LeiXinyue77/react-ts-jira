@@ -3208,3 +3208,9 @@ Warning: Can't perform a React state update on an unmounted component. This is a
 **useCallback**
 
 ![image-20240222124751913](C:\Users\Xinyue Lei\AppData\Roaming\Typora\typora-user-images\image-20240222124751913.png)
+
+**组合组件**
+
+**控制反转**
+
+useReducer
