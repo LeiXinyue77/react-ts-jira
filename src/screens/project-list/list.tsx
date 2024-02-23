@@ -1,5 +1,5 @@
 import { Dropdown, Menu, Modal, Table, TableProps } from "antd";
-import { User } from "./search-panel";
+import { User } from "types/user";
 import dayjs from "dayjs";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
@@ -7,18 +7,7 @@ import { Pin } from "components/pin";
 import { useDeleteProject, useEditProject } from "utils/projects";
 import { ButtonNoPadding } from "components/lib";
 import { useProjectModal, useProjectQueryKey } from "./utils";
-
-// react-router和react-router-dom的关系，类似于react和react-dom react-native react-vr的关系
-
-// TODO 把所有id改成Number类型
-export interface Project {
-  id: number;
-  name: string;
-  personId: number;
-  pin: boolean;
-  organization: string;
-  created: number;
-}
+import { Project } from "types/project";
 
 //删除list: Project[]，因为其已经隐含在Table的datasource里面
 //这里的改动涉及的antd Table的数据透传

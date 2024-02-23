@@ -1,5 +1,6 @@
 import { SearchPanel } from "./search-panel";
-import { List, Project } from "./list";
+import { List } from "./list";
+import { Project } from "types/project";
 import { useEffect, useState } from "react";
 import { cleanObject, useMount, useDebounce, useDocumentTitle } from "utils";
 import qs from "qs";
