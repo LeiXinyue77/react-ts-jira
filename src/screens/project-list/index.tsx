@@ -10,13 +10,14 @@ import { useAsync } from "utils/use-async";
 import { useProjects } from "utils/projects";
 import { useUsers } from "utils/user";
 import { useUrlQueryParam } from "utils/url";
-import { useProjectsSearchParams } from "./utils";
+import { useProjectModal, useProjectsSearchParams } from "./utils";
 import { Button } from "antd/lib/radio";
-import { Row } from "components/lib";
+import { ButtonNoPadding, Row } from "components/lib";
 
-export const ProjectListScreen = (props: { projectButton: JSX.Element }) => {
+export const ProjectListScreen = () => {
   useDocumentTitle("项目列表", false);
 
+  const { projectModalOpen, close, open } = useProjectModal();
   const [param, setParam] = useProjectsSearchParams();
   const {
     isLoading,
@@ -30,10 +31,9 @@ export const ProjectListScreen = (props: { projectButton: JSX.Element }) => {
     <Container>
       <Row between={true}>
         <h1>项目列表</h1>
-        {props.projectButton}
-        {/* <Button onClick={() => props.setProjectModalOpen(true)}>
+        <ButtonNoPadding type="link" onClick={open}>
           创建项目
-        </Button> */}
+        </ButtonNoPadding>
       </Row>
       {/* <Button onClick={retry}>retry</Button> */}
       <SearchPanel param={param} setParam={setParam} users={users || []} />
@@ -41,7 +41,6 @@ export const ProjectListScreen = (props: { projectButton: JSX.Element }) => {
         <Typography.Text type="danger">{error.message}</Typography.Text>
       ) : null}
       <List
-        projectButton={props.projectButton}
         refresh={retry}
         loading={isLoading}
         users={users || []}
