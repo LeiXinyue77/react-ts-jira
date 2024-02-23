@@ -5,6 +5,7 @@ import { http } from "utils/http";
 import { useMount } from "utils";
 import { useAsync } from "utils/use-async";
 import { FullPageErrorFallBack, FullPageLoading } from "components/lib";
+import { useQueryClient } from "react-query";
 
 // 定义一下AuhForm属性接口
 interface AuthForm {
@@ -50,10 +51,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setData: setUser,
   } = useAsync<User | null>();
 
+  const queryClient = useQueryClient();
+
   // 分别定义 login, register, logout这几个函数
   const login = (form: AuthForm) => auth.login(form).then(setUser);
   const register = (form: AuthForm) => auth.register(form).then(setUser);
-  const logout = () => auth.logout().then(() => setUser(null));
+  const logout = () =>
+    auth.logout().then(() => {
+      queryClient.clear();
+      setUser(null);
+    });
 
   //用户登录状态下，刷新时，登录状态的维持
   useMount(() => {
