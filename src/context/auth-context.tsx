@@ -5,14 +5,20 @@ import { http } from "utils/http";
 import { useMount } from "utils";
 import { useAsync } from "utils/use-async";
 import { FullPageErrorFallBack, FullPageLoading } from "components/lib";
+import * as authStore from "store/auth.slice";
+import { useDispatch, useSelector } from "react-redux";
+import { useCallback } from "react";
+import { selectUser } from "store/auth.slice";
+import { Dispatch } from "@reduxjs/toolkit";
+import { AppDispatch } from "store";
 
 // 定义一下AuhForm属性接口
-interface AuthForm {
+export interface AuthForm {
   username: string;
   password: string;
 }
 
-const bootstrapUser = async () => {
+export const bootstrapUser = async () => {
   let user = null;
   const token = auth.getToken();
   if (token) {
@@ -22,24 +28,7 @@ const bootstrapUser = async () => {
   return user;
 };
 
-// 默认定义为undefined，但是后面的几个属性需要加进去，所以需要加入泛型，里面放入联合类型。
-const AuthContext = React.createContext<
-  | {
-      user: User | null;
-      register: (form: AuthForm) => Promise<void>;
-      login: (form: AuthForm) => Promise<void>;
-      logout: () => Promise<void>;
-    }
-  | undefined
->(undefined);
-
-// 为了让DevTool 可以方便查询
-AuthContext.displayName = "AuthContext";
-
-//  创建 AuthProvider 返回Context.Provider的jsx
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // 用到hooks useState，因为默认为空，赋值后为User，所以用联合类型，传到泛型里。
-  // const [user, setUser] = useState<User | null>(null);
   const {
     data: user,
     error,
@@ -50,14 +39,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setData: setUser,
   } = useAsync<User | null>();
 
-  // 分别定义 login, register, logout这几个函数
-  const login = (form: AuthForm) => auth.login(form).then(setUser);
-  const register = (form: AuthForm) => auth.register(form).then(setUser);
-  const logout = () => auth.logout().then(() => setUser(null));
+  const dispatch: (...args: unknown[]) => Promise<User> =
+    useDispatch<AppDispatch>();
 
   //用户登录状态下，刷新时，登录状态的维持
   useMount(() => {
-    run(bootstrapUser());
+    run(dispatch(authStore.bootstrap()));
     //bootstrapUser().then(setUser);
   });
 
@@ -69,22 +56,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   if (isError) {
     return <FullPageErrorFallBack error={error} />;
   }
-
   // children 表示该标签的子标签
-  return (
-    <AuthContext.Provider
-      children={children}
-      value={{ user, login, register, logout }}
-    />
-  );
+  return <div>{children}</div>;
 };
 
 // 创建 useAuth 用来全局使用这几个属性
 export const useAuth = () => {
-  // 使用useContext Hook，可以从Context中获取当前值
-  const context = React.useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth必须在AuthProvider中使用");
-  }
-  return context;
+  // redux-thunk重构.
+  const dispatch: (...args: unknown[]) => Promise<User> =
+    useDispatch<AppDispatch>();
+  const user = useSelector(selectUser);
+  const login = useCallback(
+    (form: AuthForm) => dispatch(authStore.login(form)),
+    [dispatch],
+  );
+  const register = useCallback(
+    (form: AuthForm) => dispatch(authStore.register(form)),
+    [dispatch],
+  );
+  const logout = useCallback(() => dispatch(authStore.logout()), [dispatch]);
+  return {
+    user,
+    login,
+    register,
+    logout,
+  };
 };

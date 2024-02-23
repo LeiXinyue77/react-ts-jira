@@ -3213,4 +3213,6 @@ Warning: Can't perform a React state update on an unmounted component. This is a
 
 **控制反转**
 
-useReducer
+**useReducer**
+
+**Redux-thunk** 异步处理 ！！！
