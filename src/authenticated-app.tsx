@@ -12,6 +12,7 @@ import { useState } from "react";
 import { ProjectModal } from "screens/project-list/project-modal";
 import { ProjectPopover } from "components/project-popover";
 import React from "react";
+import { UserPopover } from "components/user-popover";
 
 /**
  * gri 和 flex各自的应用场景
@@ -27,7 +28,7 @@ export const AuthenticatedApp = () => {
     <Container>
       {/* <Button onClick={() => setProjectModalOpen(true)}>打开</Button> */}
 
-      <Router>
+      <Router basename="/leixinyue77.github.io">
         <PageHeader />
         <Main>
           <Routes>
@@ -55,7 +56,7 @@ const PageHeader = () => {
         </ButtonNoPadding>
         {/* <h2>项目</h2> */}
         <ProjectPopover />
-        <span>用户</span>
+        <UserPopover />
       </HeaderLeft>
       <HeaderRight>
         <User />

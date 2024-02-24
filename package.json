@@ -1,6 +1,7 @@
 {
   "name": "jira",
   "version": "0.1.0",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@craco/craco": "7",
@@ -31,7 +32,9 @@
     "start": "craco start --openssl-legacy-provider start",
     "build": "craco build",
     "test": "craco test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build -r https://github.com/LeiXinyue77/leixinyue77.github.io.git -b main"
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +69,7 @@
     "@welldone-software/why-did-you-render": "^7",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^9.1.0",
+    "gh-pages": "^6.1.1",
     "husky": "^8.0.3",
     "json-server": "^0.17.4",
     "lint-staged": "^15.2.0",

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Navigate, Route, Routes, useLocation } from "react-router";
 import { KanbanScreens } from "screens/kanban";
-import { EpicScreens } from "screens/epic";
+import { EpicScreen } from "screens/epic";
 import { ScreenContainer } from "components/lib";
 import styled from "@emotion/styled";
 import { Menu } from "antd";
@@ -30,7 +30,7 @@ export const ProjectScreen = () => {
           {/* projects/:projectId/kanban */}
           <Route path={"/kanban"} element={<KanbanScreens />} />
           {/* projects/:projectId/epic */}
-          <Route path={"/epic"} element={<EpicScreens />} />
+          <Route path={"/epic"} element={<EpicScreen />} />
           <Route
             path="/"
             element={
