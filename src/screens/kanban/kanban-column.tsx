@@ -28,14 +28,14 @@ export const KanbanColumn = ({ kanban }: { kanban: Kanban }) => {
   return (
     <Container>
       <h3>{kanban.name}</h3>
-      {tasks?.map((task) => (
-        <TasksContainer>
+      <TasksContainer>
+        {tasks?.map((task) => (
           <Card style={{ marginBottom: "0.5rem" }} key={task.id}>
             <div>{task.name}</div>
             <TaskTypeIcon id={task.typeId} />
           </Card>
-        </TasksContainer>
-      ))}
+        ))}
+      </TasksContainer>
     </Container>
   );
 };
