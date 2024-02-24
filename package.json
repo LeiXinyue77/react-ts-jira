@@ -1,7 +1,6 @@
 {
   "name": "jira",
   "version": "0.1.0",
-  "homepage": ".",
   "private": true,
   "dependencies": {
     "@craco/craco": "7",
@@ -32,9 +31,7 @@
     "start": "craco start --openssl-legacy-provider start",
     "build": "craco build",
     "test": "craco test",
-    "prepare": "husky install",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build -r https://github.com/LeiXinyue77/leixinyue77.github.io.git -b main"
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -87,5 +84,15 @@
   },
   "msw": {
     "workerDirectory": "public"
+  },
+  "babel": {
+    "presets": [
+      [
+        "react-app",
+        {
+          "runtime": "automatic"
+        }
+      ]
+    ]
   }
 }

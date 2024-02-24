@@ -8,10 +8,8 @@ import { Navigate, Route, Routes } from "react-router";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ProjectScreen } from "screens/projects";
 import { resetRoute } from "utils";
-import { useState } from "react";
 import { ProjectModal } from "screens/project-list/project-modal";
 import { ProjectPopover } from "components/project-popover";
-import React from "react";
 import { UserPopover } from "components/user-popover";
 
 /**
@@ -28,7 +26,7 @@ export const AuthenticatedApp = () => {
     <Container>
       {/* <Button onClick={() => setProjectModalOpen(true)}>打开</Button> */}
 
-      <Router basename="/leixinyue77.github.io">
+      <Router>
         <PageHeader />
         <Main>
           <Routes>
