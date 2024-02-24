@@ -44,7 +44,11 @@ export const List = ({ users, ...props }: ListProps) => {
           //localeCompare 可排序中文字符
           sorter: (a, b) => a.name.localeCompare(b.name),
           render(value, project) {
-            return <Link to={String(project.id)}>{project.name}</Link>;
+            return (
+              <Link to={`/projects/${project.id.toString()}`}>
+                {project.name}
+              </Link>
+            );
           },
         },
         {
